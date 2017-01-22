@@ -29,7 +29,9 @@ class tcp_connection
     // async_write() serves data to the client
   	void start() {
   	  // data meant to be sent is stored in message_
-   	  message_ = "put message here";
+   	  message_ = "HTTP-Version: HTTP/1.0 200 OK\nContent-Type: text/plain";
+   	             // Later we will need to add the HTTP request
+
 
       boost::asio::async_write(socket_, boost::asio::buffer(message_),
       	  boost::bind(&tcp_connection::handle_write, shared_from_this(),
