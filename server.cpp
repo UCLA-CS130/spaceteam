@@ -7,6 +7,10 @@
 
 using boost::asio::ip::tcp;
 
+namespace {
+  const int PORT = 8118;
+}
+
 // shared_ptr and enable_shared_from_this keeps the connection alive
 // as long as there's an operation referring to it.
 class tcp_connection
@@ -46,7 +50,7 @@ class tcp_connection
 class tcp_server {
   public:
   	tcp_server (boost::asio::io_service& io_service)
-  	    : acceptor_(io_service, tcp::endpoint(tcp::v4(), 13)) {
+  	    : acceptor_(io_service, tcp::endpoint(tcp::v4(), 8118)) {
   	  start_accept();
   	}
 
