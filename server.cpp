@@ -7,6 +7,9 @@
 
 using boost::asio::ip::tcp;
 
+// Citation: Based on tutorial for async TCP daytime server
+// http://www.boost.org/doc/libs/1_63_0/doc/html/boost_asio/tutorial.html#boost_asio.tutorial.tutdaytime3
+
 namespace {
   const int PORT = 8118;
 }
@@ -26,13 +29,13 @@ class tcp_connection
   	  return socket_;
   	}
 
-    // async_write() serves data to the client
+    
   	void start() {
   	  // data meant to be sent is stored in message_
    	  message_ = "HTTP-Version: HTTP/1.0 200 OK\nContent-Type: text/plain";
    	             // Later we will need to add the HTTP request
 
-
+      // async_write() serves data to the client
       boost::asio::async_write(socket_, boost::asio::buffer(message_),
       	  boost::bind(&tcp_connection::handle_write, shared_from_this(),
       	  	  boost::asio::placeholders::error,
@@ -52,7 +55,7 @@ class tcp_connection
 class tcp_server {
   public:
   	tcp_server (boost::asio::io_service& io_service)
-  	    : acceptor_(io_service, tcp::endpoint(tcp::v4(), 8118)) {
+  	    : acceptor_(io_service, tcp::endpoint(tcp::v4(), PORT)) {
   	  start_accept();
   	}
 
