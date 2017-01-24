@@ -16,7 +16,7 @@ void Connection::start() {
 
 void Connection::receive() {
   auto self(shared_from_this());
-  socket_.async_read_some(boost::asio::buffer(data_, max_length),
+  socket_.async_read_some(boost::asio::buffer(data_, max_request_length),
     [this, self](boost::system::error_code ec, std::size_t length) {
       if (!ec) {
         send(length);
@@ -27,8 +27,9 @@ void Connection::receive() {
 void Connection::send(std::size_t length) {
   auto self(shared_from_this());
 
-  char response[max_length] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
+  char response[max_response_length] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
   strcat(response, data_);
+  data_[0] = '\0'; // clear out data_
 
   boost::asio::async_write(socket_, boost::asio::buffer(response, strlen(response)),
     [this, self](boost::system::error_code ec, std::size_t /*length*/) {

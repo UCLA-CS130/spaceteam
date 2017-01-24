@@ -21,8 +21,11 @@ class Connection
     void send(std::size_t length);
 
     boost::asio::ip::tcp::socket socket_;
-    enum { max_length = 1024 };
-    char data_[max_length];
+    enum { 
+      max_request_length = 1024,
+      max_response_length = 2048 
+    };
+    char data_[max_request_length];
 };
 
 #endif
