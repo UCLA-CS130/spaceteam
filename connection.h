@@ -8,24 +8,24 @@
 // shared_ptr and enable_shared_from_this keeps the Connection alive
 // as long as there's an operation referring to it.
 class Connection
-    :  public boost::enable_shared_from_this<Connection> {
-  public:
-    typedef boost::shared_ptr<Connection> pointer;
-    static pointer create(boost::asio::io_service& io_service);
-    boost::asio::ip::tcp::socket& socket();
-    void start();
+    : public boost::enable_shared_from_this<Connection> {
+ public:
+  typedef boost::shared_ptr<Connection> pointer;
+  static pointer create(boost::asio::io_service& io_service);
+  boost::asio::ip::tcp::socket& socket();
+  void start();
 
-  private:
-    Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
-    void receive();
-    void send(std::size_t length);
+ private:
+  Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
+  void receive();
+  void send(std::size_t length);
 
-    boost::asio::ip::tcp::socket socket_;
-    enum { 
-      max_request_length = 1024,
-      max_response_length = 2048 
-    };
-    char data_[max_request_length];
+  boost::asio::ip::tcp::socket socket_;
+  enum { 
+    max_request_length = 1024,
+    max_response_length = 2048 
+  };
+  char data_[max_request_length];
 };
 
 #endif
