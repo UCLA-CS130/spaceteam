@@ -1,4 +1,7 @@
 # spaceteam
+To run server:
+make
+./webserver path-to-config-file
 
 ## Members
 * Crystal Hsieh

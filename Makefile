@@ -12,12 +12,12 @@ PARSER_SOURCE = config_parser.cc config_parser_main.cc
 SERVER_SOURCE = connection.cc server.cc main.cc config_parser.cc
 TEST_SOURCE = config_parser_test.cc config_parser.cc $(GTEST_DIR)/src/gtest_main.cc
 
-all: parser server
+all: parser webserver
 
 parser:	$(PARSER_SOURCE)
 	$(CC) $(CFLAGS) -g -o $(TARGET) $(PARSER_SOURCE)
 
-server: $(SERVER_SOURCE)
+webserver: $(SERVER_SOURCE)
 	$(CC) $(CFLAGS) $^ -o $@ -lboost_system
 
 check: tests
@@ -33,6 +33,6 @@ gtest-all.o: $(GTEST_DIR)/src/gtest-all.cc $(GTEST_DIR)/include/gtest/gtest.h
 	$(CC) $(TEST_CFLAGS) -I$(GTEST_DIR) -c $(GTEST_DIR)/src/gtest-all.cc
 
 clean:
-	$(RM) *.o *~ *.a $(TARGET) $(TEST_TARGET) server
+	$(RM) *.o *~ *.a $(TARGET) $(TEST_TARGET) webserver
 
 .PHONY: all parser check clean

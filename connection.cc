@@ -40,4 +40,6 @@ void Connection::send(std::size_t length) {
           receive();
         }
       });
+
+  socket_.close();
 }
