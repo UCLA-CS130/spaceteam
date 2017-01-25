@@ -7,7 +7,7 @@
 
 class Server {
  public:
-  Server(boost::asio::io_service& io_service, int port);
+  Server(boost::asio::io_service& io_service, const char* filename);
 
  private:
   void start_accept();
@@ -15,6 +15,7 @@ class Server {
                      const boost::system::error_code& error);
 
   boost::asio::ip::tcp::acceptor acceptor_;
+  int port_;
 };
 
 #endif
