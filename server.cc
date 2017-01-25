@@ -21,6 +21,7 @@ Server::Server(boost::asio::io_service& io_service, const char* filename)
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());
+  acceptor_.set_option(tcp::acceptor::reuse_address(true));
   acceptor_.bind(endpoint);
   acceptor_.listen();
 
@@ -30,8 +31,6 @@ Server::Server(boost::asio::io_service& io_service, const char* filename)
 // creates a socket and initiates asynchronous accept operation
 // to wait for a new connection
 void Server::start_accept() {
-
-  // acceptor_.listen();
 
   Connection::pointer new_connection =
       Connection::create(acceptor_.get_io_service());
