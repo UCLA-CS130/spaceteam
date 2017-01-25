@@ -17,6 +17,7 @@ Server::Server(boost::asio::io_service& io_service, const char* filename)
     throw "Error parsing config file.";
   }
 
+  // get port number from config file
   port_ = std::stoi(config.statements_[0]->tokens_[1]);
 
   tcp::endpoint endpoint(tcp::v6(), port_);
