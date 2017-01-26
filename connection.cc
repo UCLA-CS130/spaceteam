@@ -1,3 +1,4 @@
+#include <iostream>
 #include "connection.h"
 
 using boost::asio::ip::tcp;
@@ -30,16 +31,12 @@ void Connection::send(std::size_t length) {
 
   char response[max_response_length] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
   strcat(response, data_);
-  data_[0] = '\0'; // clear out data_
+  memset(data_, 0, max_request_length);
 
   boost::asio::async_write(
       socket_, 
       boost::asio::buffer(response, strlen(response)),
-      [this, self](boost::system::error_code ec, std::size_t /*length*/) {
-        if (!ec) {
-          receive();
-        }
+      [this, self](boost::system::error_code /*ec*/, std::size_t /*length*/) {
+        socket_.close();
       });
-
-  socket_.close();
 }
