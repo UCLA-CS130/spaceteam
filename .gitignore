@@ -1,4 +1,6 @@
 *.o
 config_parser
 webserver
-
+server_test
+*.a
+*.out
