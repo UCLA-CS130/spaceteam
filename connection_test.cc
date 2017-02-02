@@ -1,6 +1,8 @@
 // idea for tests taken from 
 // https://github.com/UCLA-CS130/TBD/blob/master/connection_test.cc
 
+#define TEST_CONNECTION
+
 #include "gtest/gtest.h"
 #include "connection.h"
 

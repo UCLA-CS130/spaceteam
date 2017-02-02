@@ -4,7 +4,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+
+#ifdef TEST_CONNECTION
 #include "gtest/gtest_prod.h"
+#endif
 
 // shared_ptr and enable_shared_from_this keeps the Connection alive
 // as long as there's an operation referring to it.
@@ -35,10 +38,12 @@ class Connection
   boost::asio::ip::tcp::socket socket_;
 
   // allow tests to access private members
+  #ifdef TEST_CONNECTION
   FRIEND_TEST(ConnectionTest, HandleReadSuccess);
   FRIEND_TEST(ConnectionTest, HandleReadFailure);
   FRIEND_TEST(ConnectionTest, HandleWriteSuccess);
   FRIEND_TEST(ConnectionTest, HandleWriteFailure);
+  #endif
 };
 
 #endif
