@@ -1,7 +1,10 @@
 language: cpp
+
+dist: trusty
+sudo: required
 script:
 - make
-- make check && ./server_integration_test.sh
+- make check
 addons:
  apt:
    packages:
