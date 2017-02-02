@@ -10,6 +10,7 @@
 class Connection
     : public boost::enable_shared_from_this<Connection> {
  public:
+  ~Connection();
   typedef boost::shared_ptr<Connection> pointer;
   static pointer create(boost::asio::io_service& io_service);
   boost::asio::ip::tcp::socket& socket();
