@@ -4,6 +4,10 @@
 
 using boost::asio::ip::tcp;
 
+Connection::~Connection() {
+  socket_.close();
+}
+
 Connection::pointer Connection::create(boost::asio::io_service& io_service) {
   return pointer(new Connection(io_service));
 }
@@ -29,12 +33,11 @@ void Connection::do_read() {
 bool Connection::handle_read(const boost::system::error_code& error, 
                              std::size_t /*bytes_transferred*/) {
   if (error) {
-    delete this;
-    return false;
+    return false; // error
   }
 
   do_write();
-  return true;
+  return true; // success
 }
 
 void Connection::do_write() {
@@ -54,12 +57,9 @@ void Connection::do_write() {
 
 bool Connection::handle_write(const boost::system::error_code& error,
                               std::size_t /*bytes_transferred*/) {
-  socket_.close();
-
   if (error) {
-    delete this;
-    return false;
+    return false; // error
   }
-  
-  return true;
+
+  return true; // success
 }
