@@ -17,15 +17,19 @@ class Connection
 
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
-  void receive();
-  void send(std::size_t length);
+  void do_read();
+  bool handle_read(const boost::system::error_code& error, 
+                   std::size_t bytes_transferred);
+  void do_write();
+  bool handle_write(const boost::system::error_code& error,
+                    std::size_t bytes_transferred);
 
-  boost::asio::ip::tcp::socket socket_;
   enum { 
-    max_request_length = 1024,
-    max_response_length = 2048 
+    max_request_length_ = 1024,
+    max_response_length_ = 2048 
   };
-  char data_[max_request_length];
+  char data_[max_request_length_];
+  boost::asio::ip::tcp::socket socket_;
 };
 
 #endif
