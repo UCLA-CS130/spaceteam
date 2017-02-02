@@ -1,5 +1,7 @@
 language: cpp
-script: make check
+script:
+- make
+- make check && ./server_integration_test.sh
 addons:
  apt:
    packages:
