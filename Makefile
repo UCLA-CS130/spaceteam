@@ -11,6 +11,7 @@ SERVER = server
 SERVER_TEST = server_test
 CONNECTION = connection
 CONNECTION_TEST = connection_test
+INTEGRATION_TEST = server_integration_test.sh
 
 PARSER_SOURCE = config_parser.cc config_parser_main.cc
 SERVER_SOURCE = connection.cc server.cc main.cc config_parser.cc
@@ -27,13 +28,16 @@ parser:	$(PARSER_SOURCE)
 webserver: $(SERVER_SOURCE)
 	$(CC) $(CFLAGS) $^ -o $@ -lboost_system
 
-check: check_config check_server check_connection
+check: webserver check_config check_server check_connection integ_test
 
 check_config: config_test
 	./$(CONFIG_TEST)
 
 check_server: server_test
 	./$(SERVER_TEST)
+
+integ_test:
+	./$(INTEGRATION_TEST)
 
 check_connection: connection_test
 	./$(CONNECTION_TEST)
