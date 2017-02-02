@@ -11,7 +11,7 @@ class Server {
 
  private:
   void start_accept();
-  void handle_accept(Connection::pointer new_connection,
+  bool handle_accept(Connection::pointer new_connection,
                      const boost::system::error_code& error);
 
   boost::asio::ip::tcp::acceptor acceptor_;

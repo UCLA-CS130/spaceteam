@@ -1,7 +1,12 @@
 #include <iostream>
+#include <boost/bind.hpp>
 #include "connection.h"
 
 using boost::asio::ip::tcp;
+
+Connection::~Connection() {
+  socket_.close();
+}
 
 Connection::pointer Connection::create(boost::asio::io_service& io_service) {
   return pointer(new Connection(io_service));
@@ -12,31 +17,49 @@ tcp::socket& Connection::socket() {
 }
 
 void Connection::start() {
-  receive();
+  do_read();
 }
 
-void Connection::receive() {
-  auto self(shared_from_this());
+void Connection::do_read() {
   socket_.async_read_some(
-      boost::asio::buffer(data_, max_request_length),
-      [this, self](boost::system::error_code ec, std::size_t length) {
-        if (!ec) {
-          send(length);
-        }
-      });
+      boost::asio::buffer(data_, max_request_length_),
+      boost::bind(
+          &Connection::handle_read,
+          shared_from_this(),
+          boost::asio::placeholders::error,
+          boost::asio::placeholders::bytes_transferred));
 }
 
-void Connection::send(std::size_t length) {
-  auto self(shared_from_this());
+bool Connection::handle_read(const boost::system::error_code& error, 
+                             std::size_t /*bytes_transferred*/) {
+  if (error) {
+    return false; // error
+  }
 
-  char response[max_response_length] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
+  do_write();
+  return true; // success
+}
+
+void Connection::do_write() {
+  char response[max_response_length_] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
   strcat(response, data_);
-  memset(data_, 0, max_request_length);
+  memset(data_, 0, max_request_length_);
 
   boost::asio::async_write(
-      socket_, 
+      socket_,
       boost::asio::buffer(response, strlen(response)),
-      [this, self](boost::system::error_code /*ec*/, std::size_t /*length*/) {
-        socket_.close();
-      });
+      boost::bind(
+          &Connection::handle_write, 
+          shared_from_this(), 
+          boost::asio::placeholders::error,
+          boost::asio::placeholders::bytes_transferred));
+}
+
+bool Connection::handle_write(const boost::system::error_code& error,
+                              std::size_t /*bytes_transferred*/) {
+  if (error) {
+    return false; // error
+  }
+
+  return true; // success
 }
