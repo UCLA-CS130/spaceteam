@@ -27,7 +27,7 @@ parser:	$(PARSER_SOURCE)
 webserver: $(SERVER_SOURCE)
 	$(CC) $(CFLAGS) $^ -o $@ -lboost_system
 
-test: check_config check_server check_connection
+check: check_config check_server check_connection
 
 check_config: config_test
 	./$(CONFIG_TEST)
