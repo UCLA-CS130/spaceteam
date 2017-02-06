@@ -4,3 +4,4 @@ webserver
 *_test
 *.a
 *.out
+*.dSYM
