@@ -3,14 +3,17 @@
 CC = g++
 CFLAGS = -std=c++11 -Wall -Werror
 GTEST_DIR = googletest/googletest
-TEST_CFLAGS = -std=c++0x -isystem $(GTEST_DIR)/include -pthread
+TEST_CFLAGS = -std=c++0x -isystem $(GTEST_DIR)/include -pthread $(GCOV_FLAGS)
+GCOV_FLAGS = -fprofile-arcs -ftest-coverage
 
+ALL_BIN = $(CONFIG) $(CONFIG_TEST) $(SERVER) $(SERVER_TEST) $(CONNECTION) $(CONNECTION_TEST) webserver
 CONFIG = config_parser
 CONFIG_TEST = config_parser_test
 SERVER = server
 SERVER_TEST = server_test
 CONNECTION = connection
 CONNECTION_TEST = connection_test
+INTEGRATION_TEST = server_integration_test.sh
 
 PARSER_SOURCE = config_parser.cc config_parser_main.cc
 SERVER_SOURCE = connection.cc server.cc main.cc config_parser.cc
@@ -27,13 +30,18 @@ parser:	$(PARSER_SOURCE)
 webserver: $(SERVER_SOURCE)
 	$(CC) $(CFLAGS) $^ -o $@ -lboost_system
 
-check: check_config check_server check_connection
+check: webserver check_config check_server check_connection integ_test
+	gcov -r connection.cc
+	gcov -r server.cc
 
 check_config: config_test
 	./$(CONFIG_TEST)
 
 check_server: server_test
 	./$(SERVER_TEST)
+
+integ_test:
+	./$(INTEGRATION_TEST)
 
 check_connection: connection_test
 	./$(CONNECTION_TEST)
@@ -54,6 +62,6 @@ gtest-all.o: $(GTEST_DIR)/src/gtest-all.cc $(GTEST_DIR)/include/gtest/gtest.h
 	$(CC) $(TEST_CFLAGS) -I$(GTEST_DIR) -c $(GTEST_DIR)/src/gtest-all.cc
 
 clean:
-	$(RM) *.o *~ *.a $(CONFIG) $(CONFIG_TEST) $(SERVER) $(SERVER_TEST) $(CONNECTION) $(CONNECTION_TEST) webserver
+	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno $(ALL_BIN)
 
 .PHONY: all parser check clean
