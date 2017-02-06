@@ -31,13 +31,14 @@ void Connection::do_read() {
 }
 
 bool Connection::handle_read(const boost::system::error_code& error, 
-                             std::size_t /*bytes_transferred*/) {
+                             std::size_t bytes_transferred) {
   if (error) {
     return false; // error
   }
 
   // Since there's no error, we can parse the data.
   // Global RequestParser will insert data into cur_request
+  // Not sure if bytes transferred is how to get the current amount transferred 
   Request cur_request;
   request_parser.parse(cur_request, data_, data_+bytes_transferred);
 
