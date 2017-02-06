@@ -1,1 +1,4 @@
 port 1890;
+filePath /googletest;
+staticRequest /;
+echoRequest /echo;
