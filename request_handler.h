@@ -8,22 +8,22 @@
 class RequestHandler {
  public:
   RequestHandler() {}
-  virtual ~RequestHandler() = 0;
-  virtual void handle_request(const Request &request, Response *response) = 0;
+  virtual ~RequestHandler() {}
+  virtual void handle_request(const Request &request, Response &response) = 0;
 };
 
 class EchoRequestHandler : public RequestHandler {
  public:
   EchoRequestHandler() {}
   ~EchoRequestHandler() {}
-  void handle_request(const Request &request, Response *response);
+  void handle_request(const Request &request, Response &response);
 };
 
 class StaticRequestHandler : public RequestHandler {
  public:
   StaticRequestHandler() {}
   ~StaticRequestHandler() {}
-  void handle_request(const Request &request, Response *response);
+  void handle_request(const Request &request, Response &response);
 };
 
 #endif

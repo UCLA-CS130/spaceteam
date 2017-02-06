@@ -1,10 +1,12 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include <array>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include "request_parser.h"
+#include "response.h"
 
 #ifdef TEST_CONNECTION
 #include "gtest/gtest_prod.h"
@@ -27,17 +29,13 @@ class Connection
   void do_read();
   bool handle_read(const boost::system::error_code& error, 
                    std::size_t bytes_transferred);
-  void do_write();
+  void do_write(Response &response);
   bool handle_write(const boost::system::error_code& error,
                     std::size_t bytes_transferred);
 
-  enum { 
-    max_request_length_ = 1024,
-    max_response_length_ = 2048 
-  };
-  char data_[max_request_length_];
+  std::array<char, 1024> buffer_;
   boost::asio::ip::tcp::socket socket_;
-  RequestParser request_parser;
+  RequestParser request_parser_;
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION

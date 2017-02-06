@@ -6,6 +6,8 @@
 struct Header {
   std::string name;
   std::string value;
+
+  std::string to_string();
 };
 
 #endif
