@@ -10,15 +10,15 @@ using boost::asio::ip::tcp;
 
 Server::Server(boost::asio::io_service& io_service, const char* filename)
     : acceptor_(io_service) {
-  
-  NginxConfigParser parser;
-  NginxConfig config;
-  if (!parser.Parse(filename, &config)) {
+
+  ServerInfo info;
+  if (!getServerInfo(filename, &info)) {
     throw "Error parsing config file.";
   }
-
-  // get port number from config file
-  port_ = std::stoi(config.statements_[0]->tokens_[1]);
+  printf("%s\n", info.ToString().c_str());
+  port_ = info.port;
+  static_path_to_root_ = info.static_path_to_root_;
+  echo_path_to_root_ = info.echo_path_to_root_;
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());

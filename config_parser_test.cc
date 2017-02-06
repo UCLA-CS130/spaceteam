@@ -5,7 +5,7 @@ TEST(NginxConfigParserTest, SimpleConfig) {
   NginxConfigParser parser;
   NginxConfig out_config;
 
-  bool success = parser.Parse("config", &out_config);
+  bool success = parser.Parse("test_config", &out_config);
 
   EXPECT_TRUE(success);
 }
