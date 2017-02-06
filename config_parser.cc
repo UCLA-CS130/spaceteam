@@ -14,6 +14,7 @@
 #include <stack>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "config_parser.h"
 
@@ -243,4 +244,31 @@ bool NginxConfigParser::Parse(const char* file_name, NginxConfig* config) {
       Parse(dynamic_cast<std::istream*>(&config_file), config);
   config_file.close();
   return return_value;
+}
+
+bool getServerInfo(const char* file_name, ServerInfo* info) {
+  NginxConfigParser parser;
+  NginxConfig config;
+  if (!parser.Parse(file_name, &config)) {
+    return false;
+  }
+  
+  for(unsigned i = 0; i < config.statements_.size(); i++) {
+    std::string key = config.statements_[i]->tokens_[0];
+    if(key == "port") {
+      info->port = std::stoi(config.statements_[i]->tokens_[1]);
+    } else if (key == "staticRequest") {
+      info->staticRequest = config.statements_[i]->tokens_[1];
+    } else if (key == "echoRequest") {
+      info->echoRequest = config.statements_[i]->tokens_[1];
+    } else if (key == "filePath") {
+      info->filePath = config.statements_[i]->tokens_[1];
+    } else {
+      printf ("Unexpected statment: %s %s;\n",
+                config.statements_[i]->tokens_[0].c_str(),
+                config.statements_[i]->tokens_[1].c_str());
+      return false;
+    }
+  }
+  return true;
 }

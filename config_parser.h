@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <string>
 
 class NginxConfig;
 
@@ -59,5 +60,24 @@ class NginxConfigParser {
 
   TokenType ParseToken(std::istream* input, std::string* value);
 };
+
+struct ServerInfo {
+  ServerInfo() : port(1880), staticRequest("/"), filePath(".") {}
+  int port;
+  std::string staticRequest;
+  std::string echoRequest;
+  std::string filePath;
+
+  std::string ToString() {
+    std::string output = "port: " + std::to_string(port) + "\n";
+    output += "staticRequest: " + staticRequest + "\n";
+    output += "echoRequest: " + echoRequest + "\n";
+    output += "filePath: " + filePath + "\n";
+    return output;
+  }
+};
+
+// parses config file and returns it in the ServerInfo struct
+bool getServerInfo(const char* file_name, ServerInfo* info);
 
 #endif
