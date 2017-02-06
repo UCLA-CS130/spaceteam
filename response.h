@@ -6,7 +6,7 @@
 
 struct Response {
   int status;
-  std::vector<header> headers;
+  std::vector<Header> headers;
   char *content;
 };
 

@@ -5,12 +5,12 @@
 #include <vector>
 
 struct Request {
-  std::string method_;
-  std::string uri_;
+  std::string method;
+  std::string uri;
   int http_version_major;
   int http_version_minor;
-  std::vector<header> headers_;
-  std::string raw_request_; // the original request text
+  std::vector<Header> headers;
+  std::string raw_request; // the original request text
 };
 
 #endif
