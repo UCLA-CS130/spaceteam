@@ -65,6 +65,7 @@ class NginxConfigParser {
 struct ServerInfo {
   ServerInfo() : port(1880) {}
   int port;
+  // maps relate request path to base path on file system
   std::map<std::string, std::string> echoPathToRoot;
   std::map<std::string, std::string> staticPathToRoot;
 
