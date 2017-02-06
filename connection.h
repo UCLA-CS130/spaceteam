@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include "request_parser.h"
 
 #ifdef TEST_CONNECTION
 #include "gtest/gtest_prod.h"
@@ -36,6 +37,7 @@ class Connection
   };
   char data_[max_request_length_];
   boost::asio::ip::tcp::socket socket_;
+  RequestParser request_parser;
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION

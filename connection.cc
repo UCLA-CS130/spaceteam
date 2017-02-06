@@ -36,6 +36,11 @@ bool Connection::handle_read(const boost::system::error_code& error,
     return false; // error
   }
 
+  // Since there's no error, we can parse the data.
+  // Global RequestParser will insert data into cur_request
+  Request cur_request;
+  request_parser.parse(cur_request, data_, data_+bytes_transferred);
+
   do_write();
   return true; // success
 }
