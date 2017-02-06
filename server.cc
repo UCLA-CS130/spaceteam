@@ -17,8 +17,8 @@ Server::Server(boost::asio::io_service& io_service, const char* filename)
   }
   printf("%s\n", info.ToString().c_str());
   port_ = info.port;
-  staticPathToRoot_ = info.staticPathToRoot;
-  echoPathToRoot_ = info.echoPathToRoot;
+  static_path_to_root_ = info.static_path_to_root_;
+  echo_path_to_root_ = info.echo_path_to_root_;
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());

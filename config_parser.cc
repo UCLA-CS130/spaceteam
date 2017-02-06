@@ -265,17 +265,17 @@ bool getServerInfo(const char* file_name, ServerInfo* info) {
       // determine handler type
       if(config.statements_[i]->tokens_[2] == "StaticFileHandler") {
         if(config.statements_[i]->child_block_->statements_.size() != 0) {
-          info->staticPathToRoot[config.statements_[i]->tokens_[1]] =
+          info->static_path_to_root_[config.statements_[i]->tokens_[1]] =
             config.statements_[i]->child_block_->statements_[0]->tokens_[1];
           } else {
-            info->staticPathToRoot[config.statements_[i]->tokens_[1]] = "";
+            info->static_path_to_root_[config.statements_[i]->tokens_[1]] = "";
           }
       } else if(config.statements_[i]->tokens_[2] == "EchoHandler") {
         if(config.statements_[i]->child_block_->statements_.size() != 0) {
-          info->echoPathToRoot[config.statements_[i]->tokens_[1]] =
+          info->echo_path_to_root_[config.statements_[i]->tokens_[1]] =
             config.statements_[i]->child_block_->statements_[0]->tokens_[1];
           } else {
-            info->echoPathToRoot[config.statements_[i]->tokens_[1]] = "";
+            info->echo_path_to_root_[config.statements_[i]->tokens_[1]] = "";
           }
       } else {
         printf("Handler %s not recognized.", config.statements_[i]->tokens_[2].c_str());

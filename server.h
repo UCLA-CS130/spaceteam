@@ -17,8 +17,8 @@ class Server {
   boost::asio::ip::tcp::acceptor acceptor_;
   int port_;
   // maps relate request path to base path on file system
-  std::map<std::string, std::string> echoPathToRoot_;
-  std::map<std::string, std::string> staticPathToRoot_;
+  std::map<std::string, std::string> echo_path_to_root_;
+  std::map<std::string, std::string> static_path_to_root_;
 };
 
 #endif

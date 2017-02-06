@@ -66,17 +66,17 @@ struct ServerInfo {
   ServerInfo() : port(1880) {}
   int port;
   // maps relate request path to base path on file system
-  std::map<std::string, std::string> echoPathToRoot;
-  std::map<std::string, std::string> staticPathToRoot;
+  std::map<std::string, std::string> echo_path_to_root_;
+  std::map<std::string, std::string> static_path_to_root_;
 
   std::string ToString() {
     std::string output = "port: " + std::to_string(port) + "\n";
     output += "\nEcho Mappings:\n";
-    for(auto const& entry : echoPathToRoot) {
+    for(auto const& entry : echo_path_to_root_) {
       output += entry.first + ": " + entry.second + "\n";
     }
     output += "\nStatic Mappings:\n";
-    for(auto const& entry : staticPathToRoot) {
+    for(auto const& entry : static_path_to_root_) {
       output += entry.first + ": " + entry.second + "\n";
     }
     return output;
