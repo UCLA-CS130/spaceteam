@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <string>
+#include <map>
 
 class NginxConfig;
 
@@ -62,17 +63,21 @@ class NginxConfigParser {
 };
 
 struct ServerInfo {
-  ServerInfo() : port(1880), staticRequest("/"), filePath(".") {}
+  ServerInfo() : port(1880) {}
   int port;
-  std::string staticRequest;
-  std::string echoRequest;
-  std::string filePath;
+  std::map<std::string, std::string> echoPathToRoot;
+  std::map<std::string, std::string> staticPathToRoot;
 
   std::string ToString() {
     std::string output = "port: " + std::to_string(port) + "\n";
-    output += "staticRequest: " + staticRequest + "\n";
-    output += "echoRequest: " + echoRequest + "\n";
-    output += "filePath: " + filePath + "\n";
+    output += "\nEcho Mappings:\n";
+    for(auto const& entry : echoPathToRoot) {
+      output += entry.first + ": " + entry.second + "\n";
+    }
+    output += "\nStatic Mappings:\n";
+    for(auto const& entry : staticPathToRoot) {
+      output += entry.first + ": " + entry.second + "\n";
+    }
     return output;
   }
 };

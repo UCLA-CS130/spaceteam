@@ -1,4 +1,5 @@
 port 1890;
-filePath /googletest;
-staticRequest /;
-echoRequest /echo;
+path /echo EchoHandler {}
+path /static StaticFileHandler {
+  root "static_files";
+}

@@ -257,12 +257,30 @@ bool getServerInfo(const char* file_name, ServerInfo* info) {
     std::string key = config.statements_[i]->tokens_[0];
     if(key == "port") {
       info->port = std::stoi(config.statements_[i]->tokens_[1]);
-    } else if (key == "staticRequest") {
-      info->staticRequest = config.statements_[i]->tokens_[1];
-    } else if (key == "echoRequest") {
-      info->echoRequest = config.statements_[i]->tokens_[1];
-    } else if (key == "filePath") {
-      info->filePath = config.statements_[i]->tokens_[1];
+    } else if (key == "path") {
+      if(config.statements_[i]->tokens_.size() != 3
+          || !config.statements_[i]->child_block_) {
+        return false;
+      }
+      // determine handler type
+      if(config.statements_[i]->tokens_[2] == "StaticFileHandler") {
+        if(config.statements_[i]->child_block_->statements_.size() != 0) {
+          info->staticPathToRoot[config.statements_[i]->tokens_[1]] =
+            config.statements_[i]->child_block_->statements_[0]->tokens_[1];
+          } else {
+            info->staticPathToRoot[config.statements_[i]->tokens_[1]] = "";
+          }
+      } else if(config.statements_[i]->tokens_[2] == "EchoHandler") {
+        if(config.statements_[i]->child_block_->statements_.size() != 0) {
+          info->echoPathToRoot[config.statements_[i]->tokens_[1]] =
+            config.statements_[i]->child_block_->statements_[0]->tokens_[1];
+          } else {
+            info->echoPathToRoot[config.statements_[i]->tokens_[1]] = "";
+          }
+      } else {
+        printf("Handler %s not recognized.", config.statements_[i]->tokens_[2].c_str());
+        return false;
+      }
     } else {
       printf ("Unexpected statment: %s %s;\n",
                 config.statements_[i]->tokens_[0].c_str(),

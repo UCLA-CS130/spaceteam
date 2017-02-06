@@ -15,11 +15,10 @@ Server::Server(boost::asio::io_service& io_service, const char* filename)
   if (!getServerInfo(filename, &info)) {
     throw "Error parsing config file.";
   }
+  printf("%s\n", info.ToString().c_str());
   port_ = info.port;
-  staticRequestPath_ = info.staticRequest;
-  echoRequestPath_ = info.echoRequest;
-  filePath_ = info.filePath;
-
+  staticPathToRoot_ = info.staticPathToRoot;
+  echoPathToRoot_ = info.echoPathToRoot;
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());

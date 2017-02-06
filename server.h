@@ -16,9 +16,8 @@ class Server {
 
   boost::asio::ip::tcp::acceptor acceptor_;
   int port_;
-  std::string staticRequestPath_;
-  std::string echoRequestPath_;
-  std::string filePath_;
+  std::map<std::string, std::string> echoPathToRoot_;
+  std::map<std::string, std::string> staticPathToRoot_;
 };
 
 #endif
