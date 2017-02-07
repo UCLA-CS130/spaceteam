@@ -46,10 +46,22 @@ bool Connection::handle_read(const boost::system::error_code& error,
 
   if (result == RequestParser::good) {
     // TODO: get the right request handler based on the request
-    EchoRequestHandler request_handler;
+    EchoRequestHandler echo_request_handler;
+    StaticRequestHandler static_request_handler;
+
+    // Default request handler
+    RequestHandler request_handler = &echo_request_handler; 
+
+    // In the future, we can make these constants.
+    if (request.uri != "/echo" && request.uri != "/") {
+      // If it's not default or echo, it's static.
+      request_handler = &static_request_handler;
+    }
+
     Response response;
     request_handler.handle_request(request, response);
     do_write(response);
+
   }
   else {
     do_read();
