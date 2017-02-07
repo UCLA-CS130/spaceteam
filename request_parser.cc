@@ -12,6 +12,8 @@ void RequestParser::reset() {
 }
 
 RequestParser::result_type RequestParser::consume(Request& req, char input) {
+  req.raw_request.push_back(input);
+  
   switch (state_) {
     case method_start:
       if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
@@ -187,7 +189,7 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
       return (input == '\n') ? good : bad;
     default:
       return bad;
-    }
+  }
 }
 
 bool RequestParser::is_char(int c) {
