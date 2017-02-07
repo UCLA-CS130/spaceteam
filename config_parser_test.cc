@@ -78,3 +78,31 @@ TEST_F(NginxStringConfigTest, QuoteConfig) {
 TEST_F(NginxStringConfigTest, InvalidQuoteConfig) {
 	EXPECT_FALSE(ParseString("foo \"bar;"));
 }
+
+TEST_F(NginxStringConfigTest, NginxConfigToString) {
+	EXPECT_TRUE(ParseString("boo far;"));
+	EXPECT_EQ(out_config_.ToString(), "boo far;\n");
+}
+
+TEST_F(NginxStringConfigTest, StatmentToString) {
+	EXPECT_TRUE(ParseString("boo far;"));
+	EXPECT_EQ(out_config_.statements_[0]->ToString(0), "boo far;\n");
+}
+
+TEST(ServerInfoTest, GetServerInfo) {
+	ServerInfo info;
+	EXPECT_TRUE(getServerInfo("test_config", &info));
+	EXPECT_EQ(info.port, 1890);
+	EXPECT_EQ(info.echo_path_to_root_.size(), 1);
+	EXPECT_EQ(info.static_path_to_root_.size(), 1);
+}
+
+TEST(ServerInfoTest, UnexpectedConfig) {
+	ServerInfo info;
+	EXPECT_FALSE(getServerInfo("test_config_bad", &info));
+}
+
+TEST(ServerInfoTest, UnexpectedHandlerConfig) {
+	ServerInfo info;
+	EXPECT_FALSE(getServerInfo("test_config_bad2", &info));
+}

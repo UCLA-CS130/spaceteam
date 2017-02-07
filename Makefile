@@ -33,6 +33,7 @@ webserver: $(SERVER_SOURCE) $(CONNECTION_SOURCE)
 check: webserver check_config check_server check_connection integ_test
 	gcov -r connection.cc
 	gcov -r server.cc
+	gcov -r config_parser.cc
 
 check_config: config_test
 	./$(CONFIG_TEST)
