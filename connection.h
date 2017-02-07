@@ -8,15 +8,17 @@
 #include "request_parser.h"
 #include "response.h"
 
+// only need gtest_prod.h when testing
 #ifdef TEST_CONNECTION
 #include "gtest/gtest_prod.h"
 #endif
+
+#define BUFFER_SIZE 1024 // value chosen arbitrarily
 
 // shared_ptr and enable_shared_from_this keeps the Connection alive
 // as long as there's an operation referring to it.
 class Connection
     : public boost::enable_shared_from_this<Connection> {
- //TEST_FRIENDS; // allows gtest fixture to access private members
  public:
   ~Connection();
   typedef boost::shared_ptr<Connection> pointer;
@@ -33,7 +35,7 @@ class Connection
   bool handle_write(const boost::system::error_code& error,
                     std::size_t bytes_transferred);
 
-  std::array<char, 1024> buffer_;
+  std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
   RequestParser request_parser_;
 

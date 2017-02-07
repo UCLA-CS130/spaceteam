@@ -12,7 +12,6 @@ struct Response {
   std::string content;
 
   std::string to_string();
-  std::string status_code_to_string(int status_code);
 };
 
 #endif
