@@ -4,3 +4,7 @@ webserver
 *_test
 *.a
 *.out
+*.dSYM
+*.gcda
+*.gcno
+*.gcov

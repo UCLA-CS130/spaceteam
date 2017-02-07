@@ -16,18 +16,18 @@ CONNECTION_TEST = connection_test
 INTEGRATION_TEST = server_integration_test.sh
 
 PARSER_SOURCE = config_parser.cc config_parser_main.cc
-SERVER_SOURCE = connection.cc server.cc main.cc config_parser.cc request_parser.cc
-CONNECTION_SOURCE = connection.cc request_parser.cc
+SERVER_SOURCE = server.cc main.cc config_parser.cc
+CONNECTION_SOURCE = connection.cc request_parser.cc request_handler.cc response.cc header.cc
 CONFIG_TEST_SOURCE = config_parser_test.cc config_parser.cc $(GTEST_DIR)/src/gtest_main.cc
-SERVER_TEST_SOURCE = server_test.cc server.cc $(GTEST_DIR)/src/gtest_main.cc config_parser.cc connection.cc request_parser.cc
-CONNECTION_TEST_SOURCE = connection_test.cc connection.cc $(GTEST_DIR)/src/gtest_main.cc request_parser.cc
+SERVER_TEST_SOURCE = server_test.cc server.cc $(GTEST_DIR)/src/gtest_main.cc config_parser.cc
+CONNECTION_TEST_SOURCE = connection_test.cc connection.cc $(GTEST_DIR)/src/gtest_main.cc request_parser.cc request_handler.cc response.cc header.cc
 
 all: parser webserver
 
 parser:	$(PARSER_SOURCE)
 	$(CC) $(CFLAGS) -g -o $(CONFIG) $(PARSER_SOURCE)
 
-webserver: $(SERVER_SOURCE)
+webserver: $(SERVER_SOURCE) $(CONNECTION_SOURCE)
 	$(CC) $(CFLAGS) $^ -o $@ -lboost_system
 
 check: webserver check_config check_server check_connection integ_test
@@ -47,13 +47,13 @@ check_connection: connection_test
 	./$(CONNECTION_TEST)
 
 config_test: $(CONFIG_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $(CONFIG_TEST_SOURCE) libgtest.a -o $(CONFIG_TEST)
+	$(CC) $(TEST_CFLAGS) $^ libgtest.a -o $(CONFIG_TEST)
 
-server_test: $(SERVER_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $(SERVER_TEST_SOURCE) libgtest.a -o $(SERVER_TEST) -lboost_system
+server_test: $(SERVER_TEST_SOURCE) $(CONNECTION_TEST_SOURCE) libgtest.a
+	$(CC) $(TEST_CFLAGS) $^ -o $(SERVER_TEST) -lboost_system
 
 connection_test: $(CONNECTION_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $(CONNECTION_TEST_SOURCE) libgtest.a -o $(CONNECTION_TEST) -lboost_system
+	$(CC) $(TEST_CFLAGS) $^ -o $(CONNECTION_TEST) -lboost_system
 
 libgtest.a: gtest-all.o
 	ar -rv $@ $^

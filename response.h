@@ -2,12 +2,16 @@
 #define RESPONSE_H
 
 #include <vector>
+#include <string>
+#include <boost/asio.hpp>
 #include "header.h"
 
 struct Response {
   int status;
   std::vector<Header> headers;
-  char *content;
+  std::string content;
+
+  std::string to_string();
 };
 
 #endif

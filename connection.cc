@@ -1,6 +1,8 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include "connection.h"
+#include "request_handler.h"
+#include "response.h"
 
 using boost::asio::ip::tcp;
 
@@ -22,7 +24,7 @@ void Connection::start() {
 
 void Connection::do_read() {
   socket_.async_read_some(
-      boost::asio::buffer(data_, max_request_length_),
+      boost::asio::buffer(buffer_),
       boost::bind(
           &Connection::handle_read,
           shared_from_this(),
@@ -36,24 +38,30 @@ bool Connection::handle_read(const boost::system::error_code& error,
     return false; // error
   }
 
-  // Since there's no error, we can parse the data.
-  // Global RequestParser will insert data into cur_request
-  // Not sure if bytes transferred is how to get the current amount transferred 
-  Request cur_request;
-  request_parser.parse(cur_request, data_, data_+bytes_transferred);
+  // RequestParser will insert data into the request struct
+  Request request;
+  RequestParser::result_type result;
+  std::tie(result, std::ignore) = request_parser_.parse(
+      request, buffer_.data(), buffer_.data() + bytes_transferred);
 
-  do_write();
+  if (result == RequestParser::good) {
+    // TODO: get the right request handler based on the request
+    EchoRequestHandler request_handler;
+    Response response;
+    request_handler.handle_request(request, response);
+    do_write(response);
+  }
+  else {
+    do_read();
+  }
+
   return true; // success
 }
 
-void Connection::do_write() {
-  char response[max_response_length_] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n";
-  strcat(response, data_);
-  memset(data_, 0, max_request_length_);
-
+void Connection::do_write(Response &response) {
   boost::asio::async_write(
       socket_,
-      boost::asio::buffer(response, strlen(response)),
+      boost::asio::buffer(response.to_string()),
       boost::bind(
           &Connection::handle_write, 
           shared_from_this(), 
@@ -62,7 +70,7 @@ void Connection::do_write() {
 }
 
 bool Connection::handle_write(const boost::system::error_code& error,
-                              std::size_t /*bytes_transferred*/) {
+                              std::size_t bytes_transferred) {
   if (error) {
     return false; // error
   }
