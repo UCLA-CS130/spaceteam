@@ -62,6 +62,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
 }
 
 void Connection::do_write(Response &response) {
+  std::cerr << "sending response" << std::endl << response.to_string() << std::endl;
   boost::asio::async_write(
       socket_,
       response.to_buffers(),

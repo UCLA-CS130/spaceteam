@@ -12,6 +12,7 @@ struct Response {
   std::string content;
 
   std::vector<boost::asio::const_buffer> to_buffers();
+  std::string to_string();
   std::string status_code_to_string(int status_code);
 };
 

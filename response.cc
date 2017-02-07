@@ -18,6 +18,20 @@ std::vector<boost::asio::const_buffer> Response::to_buffers() {
   return buffers;
 }
 
+std::string Response::to_string() {
+  std::string result = "";
+  const std::string crlf = "\r\n";
+  result += status_code_to_string(status);
+  for (auto h : headers) {
+    result += h.to_string();
+    result += crlf;
+  }
+  result += crlf;
+  result += content;
+  
+  return result;
+}
+
 std::string Response::status_code_to_string(int status_code) {
   switch (status_code) {
     case 200: {
