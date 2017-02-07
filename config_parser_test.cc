@@ -84,7 +84,7 @@ TEST_F(NginxStringConfigTest, NginxConfigToString) {
 	EXPECT_EQ(out_config_.ToString(), "boo far;\n");
 }
 
-TEST_F(NginxStringConfigTest, StatmentToString) {
+TEST_F(NginxStringConfigTest, StatementToString) {
 	EXPECT_TRUE(ParseString("boo far;"));
 	EXPECT_EQ(out_config_.statements_[0]->ToString(0), "boo far;\n");
 }
@@ -95,6 +95,7 @@ TEST(ServerInfoTest, GetServerInfo) {
 	EXPECT_EQ(info.port, 1890);
 	EXPECT_EQ(info.echo_path_to_root_.size(), 1);
 	EXPECT_EQ(info.static_path_to_root_.size(), 1);
+	EXPECT_EQ(info.static_path_to_root_["/static"], "static_files");
 }
 
 TEST(ServerInfoTest, UnexpectedConfig) {
