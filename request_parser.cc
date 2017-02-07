@@ -25,7 +25,7 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
       }
     case method:
       if (input == ' ') {
-        state_ = uri;
+        state_ = directory_start;
         return indeterminate;
       } else if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
         return bad;
@@ -33,6 +33,27 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
         req.method.push_back(input);
         return indeterminate;
       }
+    case directory_start:
+      if (input == '/') {
+        state_ = directory;
+        req.directory.push_back(input);
+        req.uri.push_back(input);
+        return indeterminate;
+      } else {
+        return bad;
+      }
+    case directory:
+      if (input == ' ') {
+        state_ = http_version_h;
+        return indeterminate;
+      } else if (is_ctl(input)) {
+        return bad;
+      } else if (input == '/') {
+        state_ = uri;
+      }
+      req.directory.push_back(input);
+      req.uri.push_back(input);
+      return indeterminate;
     case uri:
       if (input == ' ') {
         state_ = http_version_h;
