@@ -50,8 +50,9 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
         return bad;
       } else if (input == '/') {
         state_ = uri;
+      } else {
+        req.directory.push_back(input);        
       }
-      req.directory.push_back(input);
       req.uri.push_back(input);
       return indeterminate;
     case uri:
