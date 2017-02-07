@@ -44,6 +44,7 @@ class Connection
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
   RequestParser request_parser_;
+  // Maps given by server.cc to keep track of echo/static paths to root
   std::map<std::string, std::string>* echo_map;
   std::map<std::string, std::string>* static_map;
 
