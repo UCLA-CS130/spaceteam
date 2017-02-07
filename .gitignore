@@ -5,3 +5,6 @@ webserver
 *.a
 *.out
 *.dSYM
+*.gcda
+*.gcno
+*.gcov
