@@ -45,7 +45,6 @@ bool Connection::handle_read(const boost::system::error_code& error,
       request, buffer_.data(), buffer_.data() + bytes_transferred);
 
   if (result == RequestParser::good) {
-    // TODO: get the right request handler based on the request
     EchoRequestHandler echo_request_handler;
     StaticRequestHandler static_request_handler;
 
