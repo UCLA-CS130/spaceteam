@@ -2,5 +2,10 @@ foo bar;
 port 1890;
 path /echo EchoHandler {}
 path /static StaticFileHandler {
+<<<<<<< HEAD
   root static_files;
 }
+=======
+  root "static_files";
+}
+>>>>>>> 985909b4b04662548385387efbcac5f1754e2da6
