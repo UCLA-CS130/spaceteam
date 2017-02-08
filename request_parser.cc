@@ -13,7 +13,7 @@ void RequestParser::reset() {
 
 RequestParser::result_type RequestParser::consume(Request& req, char input) {
   req.raw_request.push_back(input);
-  
+
   switch (state_) {
     case method_start:
       if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
