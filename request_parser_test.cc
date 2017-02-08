@@ -22,7 +22,7 @@ class RequestParserTest : public ::testing::Test {
   }
 
   void properRequest() {
-    setUpRequest("GET /echo/hello/there.html HTTP/1.1\r\n" + '\0');
+    setUpRequest("GET /echo/hello/there.html HTTP/1.1\r\n\r\n");
   }
 
   std::string test_buffer;
@@ -39,7 +39,7 @@ TEST_F(RequestParserTest, EmptyRequest) {
 
 TEST_F(RequestParserTest, CorrectRequest) { 
   properRequest();
-  EXPECT_EQ(result, RequestParser::result_type::indeterminate);
+  EXPECT_EQ(result, RequestParser::result_type::good);
 }
 
 // Correct Handler + File Paths
@@ -47,7 +47,7 @@ TEST_F(RequestParserTest, CorrectPathsHandlerRequest) {
   properRequest();
   EXPECT_EQ(request.handler_path, "/echo");
   EXPECT_EQ(request.file_path, "/hello/there.html");
-  EXPECT_EQ(result, RequestParser::result_type::indeterminate);
+  EXPECT_EQ(result, RequestParser::result_type::good);
 }
 
 TEST_F(RequestParserTest, IncorrectRequest) { 
