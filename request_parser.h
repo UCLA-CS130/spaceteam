@@ -56,6 +56,9 @@ private:
   enum state {
     method_start,
     method,
+    handler_path_start,
+    handler_path,
+    file_path,
     uri,
     http_version_h,
     http_version_t_1,

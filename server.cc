@@ -33,7 +33,7 @@ Server::Server(boost::asio::io_service& io_service, const char* filename)
 // to wait for a new connection
 void Server::start_accept() {
   Connection::pointer new_connection =
-      Connection::create(acceptor_.get_io_service());
+      Connection::create(acceptor_.get_io_service(), &echo_path_to_root_, &static_path_to_root_);
 
   acceptor_.async_accept(
       new_connection->socket(),
