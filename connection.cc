@@ -15,9 +15,9 @@ Connection::pointer Connection::create(boost::asio::io_service& io_service) {
 }
 
 Connection::pointer Connection::create(boost::asio::io_service& io_service, 
-                                       std::map<std::string, std::string>* input_echo_map, 
-                                       std::map<std::string, std::string>* input_static_map) {
-  return pointer(new Connection(io_service, input_echo_map, input_static_map));
+                                       std::map<std::string, std::string>* input_echo_map_, 
+                                       std::map<std::string, std::string>* input_static_map_) {
+  return pointer(new Connection(io_service, input_echo_map_, input_static_map_));
 }
 
 tcp::socket& Connection::socket() {
@@ -57,9 +57,10 @@ bool Connection::handle_read(const boost::system::error_code& error,
     // Default request handler
     RequestHandler* request_handler = &echo_request_handler; 
 
-    if (static_map->find(request.handler_path) != static_map->end()) {
+    if (static_map_->count(request.handler_path) > 0) {
       request_handler = &static_request_handler;
-    } else if (echo_map->find(request.handler_path) == echo_map->end()) {
+      request.base_path = static_map_->at(request.handler_path);
+    } else if (echo_map_->count(request.handler_path) == 0) {
       // Directory for request is not found in either
       // For the sake of this implementation, continue with EchoRequestHandler
       std::cerr << "Couldn't find request directory in echo and static map" << std::endl;

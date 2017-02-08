@@ -24,16 +24,19 @@ class Connection
   typedef boost::shared_ptr<Connection> pointer;
   static pointer create(boost::asio::io_service& io_service);
   static pointer create(boost::asio::io_service& io_service, 
-                                       std::map<std::string, std::string>* input_echo_map, 
-                                       std::map<std::string, std::string>* input_static_map);
+                        std::map<std::string, std::string>* input_echo_map_, 
+                        std::map<std::string, std::string>* input_static_map_);
   boost::asio::ip::tcp::socket& socket();
   void start();
 
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
   Connection(boost::asio::io_service& io_service, 
-      std::map<std::string, std::string>* input_echo_map, 
-      std::map<std::string, std::string>* input_static_map) : socket_(io_service), echo_map(input_echo_map), static_map(input_static_map) {}
+             std::map<std::string, std::string>* input_echo_map_, 
+             std::map<std::string, std::string>* input_static_map_)
+             : socket_(io_service), 
+               echo_map_(input_echo_map_), 
+               static_map_(input_static_map_) {}
   void do_read();
   bool handle_read(const boost::system::error_code& error, 
                    std::size_t bytes_transferred);
@@ -45,8 +48,8 @@ class Connection
   boost::asio::ip::tcp::socket socket_;
   RequestParser request_parser_;
   // Maps given by server.cc to keep track of echo/static paths to root
-  std::map<std::string, std::string>* echo_map;
-  std::map<std::string, std::string>* static_map;
+  std::map<std::string, std::string>* echo_map_;
+  std::map<std::string, std::string>* static_map_;
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION

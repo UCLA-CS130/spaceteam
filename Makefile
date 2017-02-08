@@ -28,7 +28,7 @@ parser:	$(PARSER_SOURCE)
 	$(CC) $(CFLAGS) -g -o $(CONFIG) $(PARSER_SOURCE)
 
 webserver: $(SERVER_SOURCE) $(CONNECTION_SOURCE)
-	$(CC) $(CFLAGS) $^ -o $@ -lboost_system
+	$(CC) $(CFLAGS) $^ -o $@ -lboost_system -lboost_filesystem
 
 check: webserver check_config check_server check_connection integ_test
 	gcov -r connection.cc
