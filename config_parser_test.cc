@@ -84,7 +84,7 @@ TEST_F(NginxStringConfigTest, NginxConfigToString) {
 	EXPECT_EQ(out_config_.ToString(), "boo far;\n");
 }
 
-TEST_F(NginxStringConfigTest, StatmentToString) {
+TEST_F(NginxStringConfigTest, StatementToString) {
 	ParseString("boo far;");
 	EXPECT_EQ(out_config_.statements_[0]->ToString(0), "boo far;\n");
 }
