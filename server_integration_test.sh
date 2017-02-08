@@ -26,7 +26,7 @@ fi
 output2=$(curl http://localhost:1890/static/test.html | diff example_files/test.html - )
 
 # Checks that the diff produces no output, since the files should be the same.
-if [ $output2 -eq ""];
+if [ -z $output2 ];
 	then
 		echo "SUCCESS: SERVED TEST.HTML FILE"
 	else
