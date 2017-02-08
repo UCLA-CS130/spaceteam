@@ -95,7 +95,7 @@ TEST(ServerInfoTest, GetServerInfo) {
 	EXPECT_EQ(info.port, 1890);
 	EXPECT_EQ(info.echo_path_to_root_.size(), 1);
 	EXPECT_EQ(info.static_path_to_root_.size(), 1);
-	EXPECT_EQ(info.static_path_to_root_["/static"], "static_files");
+	EXPECT_EQ(info.static_path_to_root_["/static"], "./example_files");
 }
 
 TEST(ServerInfoTest, UnexpectedConfig) {
