@@ -7,7 +7,7 @@
 #define BUFFER_SIZE 1024 
 
 class RequestParserTest : public ::testing::Test {
-  protected:
+ protected:
   RequestParserTest() {
   }
 

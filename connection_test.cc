@@ -10,7 +10,7 @@ class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
     injectTestMaps();
-    connection_ = Connection::create(io_service_, &echo_map, &static_map);
+    connection_ = Connection::create(io_service_, &echo_map_, &static_map_);
   }
   
   // Inject the maps created before connection is initialized.
@@ -20,8 +20,8 @@ class ConnectionTest : public ::testing::Test {
   }
 
   boost::asio::io_service io_service_;
-  std::map<std::string, std::string> echo_map;
-  std::map<std::string, std::string> static_map;
+  std::map<std::string, std::string> echo_map_;
+  std::map<std::string, std::string> static_map_;
   Connection::pointer connection_;
 };
 
