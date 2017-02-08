@@ -15,8 +15,8 @@ class ConnectionTest : public ::testing::Test {
   
   // Inject the maps created before connection is initialized.
   void injectTestMaps() {
-    echo_map["/echo"] =  "";
-    static_map["/static"] = "static_files";
+    echo_map_["/echo"] =  "";
+    static_map_["/static"] = "static_files";
   }
 
   boost::asio::io_service io_service_;
