@@ -63,7 +63,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
     } else if (echo_map_->count(request.handler_path) == 0) {
       // Directory for request is not found in either
       // For the sake of this implementation, continue with EchoRequestHandler
-      std::cerr << "Couldn't find request directory in echo and static map" << std::endl;
+      std::cerr << "Couldn't find request.handler_path in echo_map_ or static_map_" << std::endl;
     }
 
     Response response;
