@@ -51,10 +51,10 @@ config_test: $(CONFIG_TEST_SOURCE) libgtest.a
 	$(CC) $(TEST_CFLAGS) $^ libgtest.a -o $(CONFIG_TEST)
 
 server_test: $(SERVER_TEST_SOURCE) $(CONNECTION_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $^ -o $(SERVER_TEST) -lboost_system
+	$(CC) $(TEST_CFLAGS) $^ -o $(SERVER_TEST) -lboost_system -lboost_filesystem
 
 connection_test: $(CONNECTION_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $^ -o $(CONNECTION_TEST) -lboost_system
+	$(CC) $(TEST_CFLAGS) $^ -o $(CONNECTION_TEST) -lboost_system -lboost_filesystem
 
 libgtest.a: gtest-all.o
 	ar -rv $@ $^
