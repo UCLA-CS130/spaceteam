@@ -9,10 +9,19 @@
 class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
-    connection_ = Connection::create(io_service_);
+    injectTestMaps();
+    connection_ = Connection::create(io_service_, &echo_map, &static_map);
+  }
+  
+  // Inject the maps created before connection is initialized.
+  void injectTestMaps() {
+    echo_map["/echo"] =  "";
+    static_map["/static"] = "static_files";
   }
 
   boost::asio::io_service io_service_;
+  std::map<std::string, std::string> echo_map;
+  std::map<std::string, std::string> static_map;
   Connection::pointer connection_;
 };
 
