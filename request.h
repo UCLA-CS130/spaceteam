@@ -7,7 +7,12 @@
 
 struct Request {
   std::string method;
-  std::string directory;
+  // handler_path + file_path is path from request, to decide which handler to use
+  // Example: /pizza/crust/cheese.jpg, 
+  //          handler_path = "/pizza"
+  //          file_path = "/crust/cheese.jpg"
+  std::string handler_path; 
+  std::string file_path;
   std::string uri;
   int http_version_major;
   int http_version_minor;

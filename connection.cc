@@ -57,9 +57,9 @@ bool Connection::handle_read(const boost::system::error_code& error,
     // Default request handler
     RequestHandler* request_handler = &echo_request_handler; 
 
-    if (static_map->find(request.directory) != static_map->end()) {
+    if (static_map->find(request.handler_path) != static_map->end()) {
       request_handler = &static_request_handler;
-    } else if (echo_map->find(request.directory) == echo_map->end()) {
+    } else if (echo_map->find(request.handler_path) == echo_map->end()) {
       // Directory for request is not found in either
       // For the sake of this implementation, continue with EchoRequestHandler
       std::cerr << "Couldn't find request directory in echo and static map" << std::endl;

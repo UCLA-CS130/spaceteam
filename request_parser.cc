@@ -25,7 +25,7 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
       }
     case method:
       if (input == ' ') {
-        state_ = directory_start;
+        state_ = handler_path_start;
         return indeterminate;
       } else if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
         return bad;
@@ -33,16 +33,16 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
         req.method.push_back(input);
         return indeterminate;
       }
-    case directory_start:
+    case handler_path_start:
       if (input == '/') {
-        state_ = directory;
-        req.directory.push_back(input);
+        state_ = handler_path;
+        req.handler_path.push_back(input);
         req.uri.push_back(input);
         return indeterminate;
       } else {
         return bad;
       }
-    case directory:
+    case handler_path:
       if (input == ' ') {
         state_ = http_version_h;
         return indeterminate;
@@ -50,8 +50,10 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
         return bad;
       } else if (input == '/') {
         state_ = uri;
+        req.file_path.push_back(input);
+      } else {
+        req.handler_path.push_back(input);  
       }
-      req.directory.push_back(input);
       req.uri.push_back(input);
       return indeterminate;
     case uri:
@@ -62,6 +64,7 @@ RequestParser::result_type RequestParser::consume(Request& req, char input) {
         return bad;
       } else {
         req.uri.push_back(input);
+        req.file_path.push_back(input);
         return indeterminate;
       }
     case http_version_h:
