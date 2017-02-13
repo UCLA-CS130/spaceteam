@@ -3,8 +3,7 @@ language: cpp
 dist: trusty
 sudo: required
 script:
-- make
-- make check
+- make check -j4
 addons:
  apt:
    packages:

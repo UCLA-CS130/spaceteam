@@ -1,78 +1,57 @@
 # spaceteam Makefile
 
-CC = g++
-CFLAGS = -std=c++11 -Wall -Werror
+$CXX = g++
+CXXFLAGS = -std=c++11 -Wall -Werror -isystem include
+BOOST_FLAGS = -lboost_system -lboost_filesystem
 GTEST_DIR = googletest/googletest
-TEST_CFLAGS = -std=c++0x -isystem $(GTEST_DIR)/include -pthread $(GCOV_FLAGS)
-GCOV_FLAGS = -fprofile-arcs -ftest-coverage
+GMOCK_DIR = googletest/googlemock
+TEST_FLAGS = -std=c++11 -pthread
+GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
+GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
-ALL_BIN = $(CONFIG) $(CONFIG_TEST) $(SERVER) $(SERVER_TEST) $(CONNECTION) $(CONNECTION_TEST) webserver
-CONFIG = config_parser
-CONFIG_TEST = config_parser_test
-SERVER = server
-SERVER_TEST = server_test
-CONNECTION = connection
-CONNECTION_TEST = connection_test
-REQUEST_PARSER = request_parser
-REQUEST_PARSER_TEST = request_parser_test
-INTEGRATION_TEST = server_integration_test.sh
+CLASSES = config_parser/config_parser src/server src/connection src/request_parser src/request_handler src/response src/header
+SOURCES = $(CLASSES:=.cc)
+OBJECTS = $(CLASSES:=.o)
+# TODO: make tests of the rest of the .cc files. For now, using ACTUAL_TESTS instead of TESTS
+TESTS = $(CLASSES:=_test.cc)
+ACTUAL_TESTS = config_parser/config_parser_test src/connection_test src/request_parser_test src/server_test
+ACTUAL_TESTS_SOURCE = $(ACTUAL_TESTS:=.cc)
+GCOV = config_parser/config_parser.cc src/connection.cc src/request_parser.cc src/server.cc
 
-PARSER_SOURCE = config_parser.cc config_parser_main.cc
-SERVER_SOURCE = server.cc main.cc config_parser.cc
-CONNECTION_SOURCE = connection.cc request_parser.cc request_handler.cc response.cc header.cc
-REQUEST_PARSER_TEST_SOURCE = request_parser_test.cc request_parser.cc $(GTEST_DIR)/src/gtest_main.cc  
-CONFIG_TEST_SOURCE = config_parser_test.cc config_parser.cc $(GTEST_DIR)/src/gtest_main.cc
-SERVER_TEST_SOURCE = server_test.cc server.cc $(GTEST_DIR)/src/gtest_main.cc config_parser.cc
-CONNECTION_TEST_SOURCE = connection_test.cc connection.cc $(GTEST_DIR)/src/gtest_main.cc request_parser.cc request_handler.cc response.cc header.cc
+all: webserver
 
-all: parser webserver
+webserver: $(OBJECTS) src/main.cc
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(BOOST_FLAGS)
 
-parser:	$(PARSER_SOURCE)
-	$(CC) $(CFLAGS) -g -o $(CONFIG) $(PARSER_SOURCE)
+check: webserver $(ACTUAL_TESTS)
+	for test in $^ ; do ./$$test ; done
+	./server_integration_test.sh
 
-webserver: $(SERVER_SOURCE) $(CONNECTION_SOURCE)
-	$(CC) $(CFLAGS) $^ -o $@ -lboost_system -lboost_filesystem
+gcov: CXXFLAGS += -fprofile-arcs -ftest-coverage
+gcov: TEST_FLAGS += -fprofile-arcs -ftest-coverage
+gcov: clean check
+	for test in $(GCOV) ; do gcov -r ./$$test ; done
 
-check: webserver check_config check_server check_connection integ_test check_request_parser
-	gcov -r connection.cc
-	gcov -r server.cc
-	gcov -r config_parser.cc
-	gcov -r request_parser.cc
 
-check_config: config_test
-	./$(CONFIG_TEST)
+%_test: %_test.cc libgtest.a libgmock.a $(OBJECTS)
+	$(CXX) $(GTEST_FLAGS) -isystem include $(OBJECTS) $< $(GTEST_DIR)/src/gtest_main.cc libgtest.a $(BOOST_FLAGS) -o $@
+	
 
-check_server: server_test
-	./$(SERVER_TEST)
+libgtest.a:
+	$(CXX) $(GTEST_FLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
+	ar -rv $@ gtest-all.o
 
-check_request_parser: request_parser_test
-	./$(REQUEST_PARSER_TEST)
+libgmock.a:
+	$(CXX) $(GTEST_FLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
+	$(CXX) $(GMOCK_FLAGS) -c $(GMOCK_DIR)/src/gmock-all.cc
+	ar -rv $@ gmock-all.o
 
-integ_test:
-	./$(INTEGRATION_TEST)
-
-check_connection: connection_test
-	./$(CONNECTION_TEST)
-
-config_test: $(CONFIG_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $^ libgtest.a -o $(CONFIG_TEST)
-
-server_test: $(SERVER_TEST_SOURCE) $(CONNECTION_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $^ -o $(SERVER_TEST) -lboost_system -lboost_filesystem
-
-connection_test: $(CONNECTION_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $^ -o $(CONNECTION_TEST) -lboost_system -lboost_filesystem
-
-request_parser_test: $(REQUEST_PARSER_TEST_SOURCE) libgtest.a
-	$(CC) $(TEST_CFLAGS) $^ -o $(REQUEST_PARSER_TEST) -lboost_system
-
-libgtest.a: gtest-all.o
-	ar -rv $@ $^
-
-gtest-all.o: $(GTEST_DIR)/src/gtest-all.cc $(GTEST_DIR)/include/gtest/gtest.h
-	$(CC) $(TEST_CFLAGS) -I$(GTEST_DIR) -c $(GTEST_DIR)/src/gtest-all.cc
+%.o: $.cc
+	$(CXX) $(CXXFLAGS) -c $<
 
 clean:
-	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno $(ALL_BIN)
+	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
+	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_parser_test src/connection_test
+	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
 
-.PHONY: all parser check clean
+.PHONY: all gcov check clean
