@@ -18,14 +18,6 @@ ACTUAL_TESTS = config_parser/config_parser_test src/connection_test src/request_
 ACTUAL_TESTS_SOURCE = $(ACTUAL_TESTS:=.cc)
 GCOV = config_parser/config_parser.cc src/connection.cc src/request_parser.cc src/server.cc
 
-PARSER_SOURCE = config_parser.cc config_parser_main.cc
-SERVER_SOURCE = server.cc main.cc config_parser.cc
-CONNECTION_SOURCE = connection.cc request_parser.cc request_handler.cc response.cc header.cc
-REQUEST_PARSER_TEST_SOURCE = request_parser_test.cc request_parser.cc $(GTEST_DIR)/src/gtest_main.cc  
-CONFIG_TEST_SOURCE = config_parser/config_parser_test.cc config_parser/config_parser.cc $(GTEST_DIR)/src/gtest_main.cc
-SERVER_TEST_SOURCE = server_test.cc server.cc $(GTEST_DIR)/src/gtest_main.cc config_parser.cc
-CONNECTION_TEST_SOURCE = connection_test.cc connection.cc $(GTEST_DIR)/src/gtest_main.cc request_parser.cc request_handler.cc response.cc header.cc
-
 all: webserver
 
 webserver: $(OBJECTS) src/main.cc
