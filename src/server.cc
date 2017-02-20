@@ -8,14 +8,20 @@
 
 using boost::asio::ip::tcp;
 
-Server::Server(boost::asio::io_service& io_service, const char* filename)
-    : acceptor_(io_service) {
-
+Server *Server::makeServer(boost::asio::io_service& io_service, const char* config_file) {
   ServerInfo info;
-  if (!getServerInfo(filename, &info)) {
-    throw "Error parsing config file.";
+  if (!getServerInfo(config_file, &info)) {
+    return nullptr;  // error with config file
   }
   printf("%s\n", info.ToString().c_str());
+
+  return new Server(io_service, info);
+
+}
+
+Server::Server(boost::asio::io_service& io_service, const ServerInfo info)
+    : acceptor_(io_service) {
+  
   port_ = info.port;
   static_path_to_root_ = info.static_path_to_root_;
   echo_path_to_root_ = info.echo_path_to_root_;

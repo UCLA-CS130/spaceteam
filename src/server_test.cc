@@ -11,7 +11,8 @@
 TEST(ServerTest, SimpleServerTest) {
 	boost::asio::io_service io_service;
 	// "config" should eventually be moved to a global constant
-	Server server(io_service, "test_config");
+	Server *server = Server::makeServer(io_service, "test_config");
+	EXPECT_TRUE(server != nullptr);
 }
 
 TEST(ServerInfoTest, GetServerInfo) {
