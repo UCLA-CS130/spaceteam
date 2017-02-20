@@ -54,3 +54,48 @@ bool Server::handle_accept(Connection::pointer new_connection,
   start_accept();
   return true;
 }
+
+bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
+  NginxConfigParser parser;
+  NginxConfig config;
+  if (!parser.Parse(file_name, &config)) {
+    return false;
+  }
+  
+  for(unsigned i = 0; i < config.statements_.size(); i++) {
+    std::string key = config.statements_[i]->tokens_[0];
+    if(key == "port") {
+      info->port = std::stoi(config.statements_[i]->tokens_[1]);
+    } else if (key == "path") {
+      if(config.statements_[i]->tokens_.size() != 3
+          || !config.statements_[i]->child_block_) {
+        return false;
+      }
+      // determine handler type
+      if(config.statements_[i]->tokens_[2] == "StaticFileHandler") {
+        if(config.statements_[i]->child_block_->statements_.size() != 0) {
+          info->static_path_to_root_[config.statements_[i]->tokens_[1]] =
+            config.statements_[i]->child_block_->statements_[0]->tokens_[1];
+          } else {
+            info->static_path_to_root_[config.statements_[i]->tokens_[1]] = "";
+          }
+      } else if(config.statements_[i]->tokens_[2] == "EchoHandler") {
+        if(config.statements_[i]->child_block_->statements_.size() != 0) {
+          info->echo_path_to_root_[config.statements_[i]->tokens_[1]] =
+            config.statements_[i]->child_block_->statements_[0]->tokens_[1];
+          } else {
+            info->echo_path_to_root_[config.statements_[i]->tokens_[1]] = "";
+          }
+      } else {
+        printf("Handler %s not recognized.", config.statements_[i]->tokens_[2].c_str());
+        return false;
+      }
+    } else {
+      printf ("Unexpected statment: %s %s;\n",
+                config.statements_[i]->tokens_[0].c_str(),
+                config.statements_[i]->tokens_[1].c_str());
+      return false;
+    }
+  }
+  return true;
+}
