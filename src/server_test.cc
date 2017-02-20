@@ -6,6 +6,7 @@
 #include <string>
 #include "gtest/gtest.h"
 #include "server.h"
+#include "server_info.h"
 
 // Server initialization test
 TEST(ServerTest, SimpleServerTest) {
@@ -13,6 +14,7 @@ TEST(ServerTest, SimpleServerTest) {
 	// "config" should eventually be moved to a global constant
 	Server *server = Server::makeServer(io_service, "test_config");
 	EXPECT_TRUE(server != nullptr);
+	delete server;
 }
 
 TEST(ServerInfoTest, GetServerInfo) {

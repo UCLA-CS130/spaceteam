@@ -1,0 +1,3 @@
+port 1890;
+path /echo SomeHandler {}
+path /echo SomeHandler {} # duplicate path

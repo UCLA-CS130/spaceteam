@@ -1,8 +1,12 @@
 #include <iostream>
 #include <boost/bind.hpp>
+#include <map>
+
 #include "connection.h"
 #include "request_handler.h"
 #include "response.h"
+#include "server_info.h"
+#include "request_handler.h"
 
 using boost::asio::ip::tcp;
 
@@ -15,9 +19,8 @@ Connection::pointer Connection::create(boost::asio::io_service& io_service) {
 }
 
 Connection::pointer Connection::create(boost::asio::io_service& io_service, 
-                                       std::map<std::string, std::string>* input_echo_map_, 
-                                       std::map<std::string, std::string>* input_static_map_) {
-  return pointer(new Connection(io_service, input_echo_map_, input_static_map_));
+                                       std::map<std::string, PathInfo>* input_path_to_info) {
+  return pointer(new Connection(io_service, input_path_to_info));
 }
 
 tcp::socket& Connection::socket() {
@@ -51,23 +54,26 @@ bool Connection::handle_read(const boost::system::error_code& error,
       request, buffer_.data(), buffer_.data() + bytes_transferred);
 
   if (result == RequestParser::good) {
-    EchoRequestHandler echo_request_handler;
-    StaticRequestHandler static_request_handler;
-
-    // Default request handler
-    RequestHandler* request_handler = &echo_request_handler; 
-
-    if (static_map_->count(request.handler_path) > 0) {
-      request_handler = &static_request_handler;
-      request.base_path = static_map_->at(request.handler_path);
-    } else if (echo_map_->count(request.handler_path) == 0) {
-      // Directory for request is not found in either
-      // For the sake of this implementation, continue with EchoRequestHandler
-      std::cerr << "Couldn't find request.handler_path in echo_map_ or static_map_" << std::endl;
+    // You'll need this: RequestHandler request_handler;
+    // Need to iterate through handler_id possibilities by longest prefix
+    // So... maybe add a for loop or something?
+    std::string handler_id = request.handler_path; // recommend changing name to handler_id in Request struct
+    for(auto const &e : *path_to_info_) {
+      if(e.first == handler_id) {
+        // Instantiate a handler --> see https://piazza.com/class/iwy6115h8ce37q?cid=68
+        // request_handler = RequestHandler::???(handler_id);
+        break;
+      }
     }
-
+    // detect if request_handler never got initialized
+    // if so set it to a default handler, or maybe just return false ?
     Response response;
-    request_handler->handle_request(request, response);
+    // request_handler->handle_request(request, response);
+
+    /* Also note you can process the handler specific config
+       into a nice map using parseHandlerConfig();
+       which is defined in server_info.h but is throwing compile error heh */
+    
     do_write(response);
 
   }

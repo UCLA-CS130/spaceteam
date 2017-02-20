@@ -5,8 +5,13 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include <vector>
+#include <map>
+
 #include "request_parser.h"
 #include "response.h"
+#include "server_info.h"
+#include "request_handler.h"
 
 // only need gtest_prod.h when testing
 #ifdef TEST_CONNECTION
@@ -24,19 +29,16 @@ class Connection
   typedef boost::shared_ptr<Connection> pointer;
   static pointer create(boost::asio::io_service& io_service);
   static pointer create(boost::asio::io_service& io_service, 
-                        std::map<std::string, std::string>* input_echo_map_, 
-                        std::map<std::string, std::string>* input_static_map_);
+                        std::map<std::string, PathInfo>* input_path_to_info);
   boost::asio::ip::tcp::socket& socket();
   void start();
 
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
   Connection(boost::asio::io_service& io_service, 
-             std::map<std::string, std::string>* input_echo_map_, 
-             std::map<std::string, std::string>* input_static_map_)
+             std::map<std::string, PathInfo>* input_path_to_info)
              : socket_(io_service), 
-               echo_map_(input_echo_map_), 
-               static_map_(input_static_map_) {}
+               path_to_info_(input_path_to_info) {}
   void do_read();
   bool handle_read(const boost::system::error_code& error, 
                    std::size_t bytes_transferred);
@@ -47,9 +49,8 @@ class Connection
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
   RequestParser request_parser_;
-  // Maps given by server.cc to keep track of echo/static paths to root
-  std::map<std::string, std::string>* echo_map_;
-  std::map<std::string, std::string>* static_map_;
+  // Maps given by server.cc to keep track of url paths to info
+  std::map<std::string, PathInfo>* path_to_info_;
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION
