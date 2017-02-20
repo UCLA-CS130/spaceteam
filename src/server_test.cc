@@ -11,5 +11,25 @@
 TEST(ServerTest, SimpleServerTest) {
 	boost::asio::io_service io_service;
 	// "config" should eventually be moved to a global constant
-	Server server(io_service, "test_config");
+	Server *server = Server::makeServer(io_service, "test_config");
+	EXPECT_TRUE(server != nullptr);
+}
+
+TEST(ServerInfoTest, GetServerInfo) {
+	ServerInfo info;
+	EXPECT_TRUE(Server::getServerInfo("test_config", &info));
+	EXPECT_EQ(info.port, 1890);
+	EXPECT_EQ(info.echo_path_to_root_.size(), 1);
+	EXPECT_EQ(info.static_path_to_root_.size(), 1);
+	EXPECT_EQ(info.static_path_to_root_["/static"], "./example_files");
+}
+
+TEST(ServerInfoTest, UnexpectedConfig) {
+	ServerInfo info;
+	EXPECT_FALSE(Server::getServerInfo("test_config_bad", &info));
+}
+
+TEST(ServerInfoTest, UnexpectedHandlerConfig) {
+	ServerInfo info;
+	EXPECT_FALSE(Server::getServerInfo("test_config_bad2", &info));
 }
