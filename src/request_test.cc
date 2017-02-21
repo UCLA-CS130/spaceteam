@@ -44,7 +44,7 @@ TEST_F(RequestTest, CorrectRequest) {
 TEST_F(RequestTest, CorrectPathsHandlerRequest) {
   properRequest();
   EXPECT_EQ(request.uri(), "/echo/hello/there.html");
-  EXPECT_EQ(result, RequestParser::result_type::good);
+  EXPECT_EQ(result, Request::result_type::good);
 }
 
 TEST_F(RequestTest, IncorrectRequest) { 
