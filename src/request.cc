@@ -16,199 +16,199 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
 }
 
 Request::result_type Request::consume(char input) {
-  m_raw_request.push_back(input);
+  raw_request_.push_back(input);
 
-  switch (m_state) {
+  switch (state_) {
     case method_start:
       if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
         return bad;
       } else {
-        m_state = method_inside;
-        m_method.push_back(input);
+        state_ = method_inside;
+        method_.push_back(input);
         return indeterminate;
       }
     case method_inside:
       if (input == ' ') {
-        m_state = handler_path_start;
+        state_ = handler_path_start;
         return indeterminate;
       } else if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
         return bad;
       } else {
-        m_method.push_back(input);
+        method_.push_back(input);
         return indeterminate;
       }
     case handler_path_start:
       if (input == '/') {
-        m_state = handler_path;
-        m_handler_path.push_back(input);
-        m_uri.push_back(input);
+        state_ = handler_path;
+        handler_path_.push_back(input);
+        uri_.push_back(input);
         return indeterminate;
       } else {
         return bad;
       }
     case handler_path:
       if (input == ' ') {
-        m_state = http_version_h;
+        state_ = http_version_h;
         return indeterminate;
       } else if (is_ctl(input)) {
         return bad;
       } else if (input == '/') {
-        m_state = uri_inside;
-        m_file_path.push_back(input);
+        state_ = uri_inside;
+        file_path_.push_back(input);
       } else {
-        m_handler_path.push_back(input);  
+        handler_path_.push_back(input);  
       }
-      m_uri.push_back(input);
+      uri_.push_back(input);
       return indeterminate;
     case uri_inside:
       if (input == ' ') {
-        m_state = http_version_h;
+        state_ = http_version_h;
         return indeterminate;
       } else if (is_ctl(input)) {
         return bad;
       } else {
-        m_uri.push_back(input);
-        m_file_path.push_back(input);
+        uri_.push_back(input);
+        file_path_.push_back(input);
         return indeterminate;
       }
     case http_version_h:
       if (input == 'H') {
-        m_state = http_version_t_1;
+        state_ = http_version_t_1;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_t_1:
       if (input == 'T') {
-        m_state = http_version_t_2;
+        state_ = http_version_t_2;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_t_2:
       if (input == 'T') {
-        m_state = http_version_p;
+        state_ = http_version_p;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_p:
       if (input == 'P') {
-        m_state = http_version_slash;
+        state_ = http_version_slash;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_slash:
       if (input == '/') {
-        m_http_version_major = 0;
-        m_http_version_minor = 0;
-        m_state = http_version_major_start;
+        http_version_major_ = 0;
+        http_version_minor_ = 0;
+        state_ = http_version_major_start;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_major_start:
       if (is_digit(input)) {
-        m_http_version_major = m_http_version_major * 10 + input - '0';
-        m_state = http_version_major;
+        http_version_major_ = http_version_major_ * 10 + input - '0';
+        state_ = http_version_major;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_major:
       if (input == '.') {
-        m_state = http_version_minor_start;
+        state_ = http_version_minor_start;
         return indeterminate;
       } else if (is_digit(input)) {
-        m_http_version_major = m_http_version_major * 10 + input - '0';
+        http_version_major_ = http_version_major_ * 10 + input - '0';
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_minor_start:
       if (is_digit(input)) {
-        m_http_version_minor = m_http_version_minor * 10 + input - '0';
-        m_state = http_version_minor;
+        http_version_minor_ = http_version_minor_ * 10 + input - '0';
+        state_ = http_version_minor;
         return indeterminate;
       } else {
         return bad;
       }
     case http_version_minor:
       if (input == '\r') {
-        m_state = expecting_newline_1;
+        state_ = expecting_newline_1;
         return indeterminate;
       } else if (is_digit(input)) {
-        m_http_version_minor = m_http_version_minor * 10 + input - '0';
+        http_version_minor_ = http_version_minor_ * 10 + input - '0';
         return indeterminate;
       } else {
         return bad;
       }
     case expecting_newline_1:
       if (input == '\n') {
-        m_state = header_line_start;
+        state_ = header_line_start;
         return indeterminate;
       } else {
         return bad;
       }
     case header_line_start:
       if (input == '\r') {
-        m_state = expecting_newline_3;
+        state_ = expecting_newline_3;
         return indeterminate;
-      } else if (!m_headers.empty() && (input == ' ' || input == '\t')) {
-        m_state = header_lws;
+      } else if (!headers_.empty() && (input == ' ' || input == '\t')) {
+        state_ = header_lws;
         return indeterminate;
       } else if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
         return bad;
       } else {
-        m_headers.push_back(std::pair<std::string, std::string>());
-        m_headers.back().first.push_back(input);
-        m_state = header_name;
+        headers_.push_back(std::pair<std::string, std::string>());
+        headers_.back().first.push_back(input);
+        state_ = header_name;
         return indeterminate;
       }
     case header_lws:
       if (input == '\r') {
-        m_state = expecting_newline_2;
+        state_ = expecting_newline_2;
         return indeterminate;
       } else if (input == ' ' || input == '\t') {
         return indeterminate;
       } else if (is_ctl(input)) {
         return bad;
       } else {
-        m_state = header_value;
-        m_headers.back().second.push_back(input);
+        state_ = header_value;
+        headers_.back().second.push_back(input);
         return indeterminate;
       }
     case header_name:
       if (input == ':') {
-        m_state = space_before_header_value;
+        state_ = space_before_header_value;
         return indeterminate;
       } else if (!is_char(input) || is_ctl(input) || is_tspecial(input)) {
         return bad;
       } else {
-        m_headers.back().first.push_back(input);
+        headers_.back().first.push_back(input);
         return indeterminate;
       }
     case space_before_header_value:
       if (input == ' ') {
-        m_state = header_value;
+        state_ = header_value;
         return indeterminate;
       } else {
         return bad;
       }
     case header_value:
       if (input == '\r') {
-        m_state = expecting_newline_2;
+        state_ = expecting_newline_2;
         return indeterminate;
       } else if (is_ctl(input)) {
         return bad;
       } else {
-        m_headers.back().second.push_back(input);
+        headers_.back().second.push_back(input);
         return indeterminate;
       }
     case expecting_newline_2:
       if (input == '\n') {
-        m_state = header_line_start;
+        state_ = header_line_start;
         return indeterminate;
       } else {
         return bad;
@@ -247,25 +247,25 @@ bool Request::is_digit(int c) {
 /* Getter methods for Request */
 
 std::string Request::raw_request() const {
-  return m_raw_request;
+  return raw_request_;
 }
 
 std::string Request::method() const {
-  return m_method;
+  return method_;
 }
 
 std::string Request::uri() const {
-  return m_uri;
+  return uri_;
 }
 
 // TODO: Not quite sure what they mean by "version"
 // Right now I just gather HTTP version major and minor
 std::string Request::version() const {
-  return m_version;
+  return version_;
 }
 
 Request::Headers Request::headers() const {
-  return m_headers;
+  return headers_;
 }
 
 // TODO: Mm... this shouldn't work.

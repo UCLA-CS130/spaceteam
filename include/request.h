@@ -27,22 +27,20 @@ class Request {
     enum result_type { good, bad, indeterminate };
 
   private:
-
-
     // Handle the next character of input.
     result_type consume(char input);
 
-    std::string m_raw_request;
-    std::string m_method;
-    std::string m_uri;
-    std::string m_version;
-    Headers m_headers;
+    std::string raw_request_;
+    std::string method_;
+    std::string uri_;
+    std::string version_;
+    Headers headers_;
 
     // optional?
-    std::string m_handler_path;
-    std::string m_file_path;
-    int m_http_version_major;
-    int m_http_version_minor;
+    std::string handler_path_;
+    std::string file_path_;
+    int http_version_major_;
+    int http_version_minor_;
 
     // Check if a byte is an HTTP character.
     static bool is_char(int c);
@@ -81,7 +79,7 @@ class Request {
       header_value,
       expecting_newline_2,
       expecting_newline_3
-    } m_state;
+    } state_;
 };
 
 
