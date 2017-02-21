@@ -8,7 +8,7 @@
 #include <tuple>
 #include "request.h"
 
-struct Request;
+class Request;
 
 // parser for incoming requests.
 class RequestParser {
