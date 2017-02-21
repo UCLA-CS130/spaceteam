@@ -43,7 +43,7 @@ TEST_F(RequestTest, CorrectRequest) {
 // Correct Handler + File Paths
 TEST_F(RequestTest, CorrectPathsHandlerRequest) {
   properRequest();
-  EXPECT_EQ(request.uri, "/echo/hello/there.html");
+  EXPECT_EQ(request.uri(), "/echo/hello/there.html");
   EXPECT_EQ(result, RequestParser::result_type::good);
 }
 
