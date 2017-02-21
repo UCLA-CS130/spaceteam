@@ -21,12 +21,11 @@ class RequestTest : public ::testing::Test {
   }
 
   void properRequest() {
-    setUpRequest("GET /echo/hello/there.html HTTP/1.1\r\n\r\n");
+    setUpRequest("GET /echo/hello/there.html HTTP/1.1\r\nname=1\r\n\r\n");
   }
 
   std::string test_buffer;
   std::unique_ptr<Request> request;
-  Request::result_type result;
 };
 
 TEST_F(RequestTest, EmptyRequest) { 

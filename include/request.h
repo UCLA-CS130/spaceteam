@@ -22,11 +22,9 @@ class Request {
     Headers headers() const;
 
     std::string body() const;
-
-    // For testing. Must be removed to comply with API
-    enum result_type { good, bad, indeterminate };
-
   private:
+    // For testing successful parsing
+    enum result_type { good, bad, indeterminate };
     // Handle the next character of input.
     result_type consume(char input);
 
@@ -34,13 +32,16 @@ class Request {
     std::string method_;
     std::string uri_;
     std::string version_;
+    std::string body_;
     Headers headers_;
 
-    // optional?
+    // added private variables for easier parsing
     std::string handler_path_;
     std::string file_path_;
     int http_version_major_;
     int http_version_minor_;
+    // current status of the parsed data
+    result_type parsed_status_;
 
     // Check if a byte is an HTTP character.
     static bool is_char(int c);
@@ -78,7 +79,8 @@ class Request {
       space_before_header_value,
       header_value,
       expecting_newline_2,
-      expecting_newline_3
+      expecting_newline_3,
+      body_state
     } state_;
 };
 
