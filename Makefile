@@ -9,7 +9,7 @@ TEST_FLAGS = -std=c++11 -pthread
 GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
 GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
-CLASSES = config_parser/config_parser src/server src/connection src/request src/request_handler src/response src/header src/server_info
+CLASSES = config_parser/config_parser src/server src/connection src/request src/request_handler src/response src/server_info
 SOURCES = $(CLASSES:=.cc)
 OBJECTS = $(CLASSES:=.o)
 # TODO: make tests of the rest of the .cc files. For now, using ACTUAL_TESTS instead of TESTS
