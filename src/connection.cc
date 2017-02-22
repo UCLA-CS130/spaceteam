@@ -6,7 +6,6 @@
 #include "request_handler.h"
 #include "response.h"
 #include "server_info.h"
-#include "request_handler.h"
 
 using boost::asio::ip::tcp;
 
@@ -49,22 +48,24 @@ bool Connection::handle_read(const boost::system::error_code& error,
 
   // RequestParser will insert data into the request struct
   Request request;
-  RequestParser::result_type result;
-  std::tie(result, std::ignore) = request_parser_.parse(
-      request, buffer_.data(), buffer_.data() + bytes_transferred);
+  // TODO: use the parser to parse the request.
+  // std::tie(result, std::ignore) = request_parser_.parse(
+  //     request, buffer_.data(), buffer_.data() + bytes_transferred);
+  // The line under this is meant to keep it compiling.
+  // result = Request::good;
 
-  if (result == RequestParser::good) {
+  // if (result == Request::good) {
     // You'll need this: RequestHandler request_handler;
     // Need to iterate through handler_id possibilities by longest prefix
     // So... maybe add a for loop or something?
-    std::string handler_id = request.handler_path; // recommend changing name to handler_id in Request struct
-    for(auto const &e : *path_to_info_) {
-      if(e.first == handler_id) {
+    // std::string handler_id = request.uri(); // recommend changing name to handler_id in Request struct
+    // for(auto const &e : *path_to_info_) {
+      // if(e.first == handler_id) {
         // Instantiate a handler --> see https://piazza.com/class/iwy6115h8ce37q?cid=68
         // request_handler = RequestHandler::???(handler_id);
-        break;
-      }
-    }
+        // break;
+      // }
+    // }
     // detect if request_handler never got initialized
     // if so set it to a default handler, or maybe just return false ?
     Response response;
@@ -74,12 +75,12 @@ bool Connection::handle_read(const boost::system::error_code& error,
        into a nice map using parseHandlerConfig();
        which is defined in server_info.h but is throwing compile error heh */
     
-    do_write(response);
+  //   do_write(response);
 
-  }
-  else {
-    do_read();
-  }
+  // }
+  // else {
+  //   do_read();
+  // }
 
   return true; // success
 }
@@ -87,7 +88,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
 void Connection::do_write(Response &response) {
   boost::asio::async_write(
       socket_,
-      boost::asio::buffer(response.to_string()),
+      boost::asio::buffer(response.ToString()),
       boost::bind(
           &Connection::handle_write, 
           shared_from_this(), 

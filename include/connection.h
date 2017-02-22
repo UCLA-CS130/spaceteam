@@ -8,7 +8,7 @@
 #include <vector>
 #include <map>
 
-#include "request_parser.h"
+#include "request.h"
 #include "response.h"
 #include "server_info.h"
 #include "request_handler.h"
@@ -48,7 +48,6 @@ class Connection
 
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
-  RequestParser request_parser_;
   // Maps given by server.cc to keep track of url paths to info
   std::map<std::string, PathInfo>* path_to_info_;
 

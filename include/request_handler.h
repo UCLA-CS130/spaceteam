@@ -1,29 +1,64 @@
 #ifndef REQUEST_HANDLER_H
 #define REQUEST_HANDLER_H
 
+#include <string>
+#include <unordered_map>
 #include "request.h"
 #include "response.h"
+#include "config_parser.h"
 
-// base class for request handler
+// Represents the parent of all request handlers. Implementations should expect
+// to be long lived and created at server construction.
 class RequestHandler {
  public:
-  RequestHandler() {}
-  virtual ~RequestHandler() {}
-  virtual void handle_request(const Request &request, Response &response) = 0;
+  enum Status {
+    OK = 0,
+    ERROR = 1,
+    NOT_FOUND = 2
+  };
+  
+  // Initializes the handler. Returns a response code indicating success or
+  // failure condition.
+  // uri_prefix is the value in the config file that this handler will run for.
+  // config is the contents of the child block for this handler ONLY.
+  virtual Status Init(const std::string& uri_prefix,
+                      const NginxConfig& config) = 0;
+
+  // Handles an HTTP request, and generates a response. Returns a response code
+  // indicating success or failure condition. If ResponseCode is not OK, the
+  // contents of the response object are undefined, and the server will return
+  // HTTP code 500.
+  virtual Status HandleRequest(const Request& request,
+                               Response* response) = 0;
+
+ protected:
+  // Helper function to parse through handler config
+  // returns map of names and their corresponding parameters
+  using ConfigMap = std::unordered_map<std::string, std::string>;
+  void ParseConfig(const NginxConfig& config);
+  ConfigMap config_map_;
 };
 
-class EchoRequestHandler : public RequestHandler {
+class EchoHandler : public RequestHandler {
  public:
-  EchoRequestHandler() {}
-  ~EchoRequestHandler() {}
-  void handle_request(const Request &request, Response &response);
+  Status Init(const std::string& uri_prefix,
+              const NginxConfig& config);
+  Status HandleRequest(const Request& request,
+                       Response* response);
 };
 
-class StaticRequestHandler : public RequestHandler {
+class StaticHandler : public RequestHandler {
  public:
-  StaticRequestHandler() {}
-  ~StaticRequestHandler() {}
-  void handle_request(const Request &request, Response &response);
+  Status Init(const std::string& uri_prefix,
+              const NginxConfig& config);
+  Status HandleRequest(const Request& request,
+                       Response* response);
+
+ private:
+  std::string GetMimeType(std::string extension);
+  
+  std::string uri_prefix_;
+  std::string root_;
 };
 
 #endif
