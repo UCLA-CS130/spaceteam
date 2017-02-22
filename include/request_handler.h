@@ -45,9 +45,6 @@ class EchoHandler : public RequestHandler {
               const NginxConfig& config);
   Status HandleRequest(const Request& request,
                        Response* response);
-
- private:
-  std::string uri_prefix_;
 };
 
 class StaticHandler : public RequestHandler {
