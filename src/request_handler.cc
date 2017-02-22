@@ -4,19 +4,59 @@
 #include <unordered_map>
 #include "request_handler.h"
 
-std::string get_mime_type(std::string extension);
-
-void EchoRequestHandler::handle_request(const Request &request, 
-                                        Response &response) {
-  response.status = 200;
-  Header content_type = {"Content-Type", "text/plain"};
-  response.headers.push_back(content_type);
-  response.content = request.raw_request;
+void RequestHandler::ParseConfig(NginxConfig& config) {
+  for (auto statement : config.statements_) {
+    config_map_[statement->tokens_[0]] = statement->tokens_[1];
+  }
 }
 
-void StaticRequestHandler::handle_request(const Request &request, 
-                                          Response &response) {
-  boost::filesystem::path relative_path(request.base_path + request.file_path);
+Status EchoHandler::Init(const std::string& uri_prefix,
+                         const NginxConfig& /*config*/) {
+  uri_prefix_ = uri_prefix;
+  return OK;
+}
+
+// todo: check if request.uri() matches uri_prefix_ ?
+Status EchoHandler::HandleRequest(const Request& request,
+                                  Response* response) {
+  if (response == nullptr) {
+    return ERROR;
+  }
+
+  response->SetStatus(OK);
+  response->AddHeader("Content-Type", "text/plain");
+  response->SetBody(request.raw_request());
+
+  return OK;
+}
+
+Status StaticHandler::Init(const std::string& uri_prefix,
+                           const NginxConfig& config) {
+  uri_prefix_ = uri_prefix;
+  ParseConfig(config);
+  root_ = config_map_["root"];
+  return OK;
+}
+
+// todo: add request validation
+Status StaticHandler::HandleRequest(const Request& request,
+                                    Response* response) {
+  if (response == nullptr) {
+    return ERROR;
+  }
+
+  // todo: change how we get relative_path
+  std::string uri = request.uri();
+  std::string relative_path_string;
+  if (uri != uri_prefix_ 
+      && uri.size() > uri_prefix_.size() 
+      && uri.substr(0, uri_prefix_.size()) == uri_prefix_) {
+    relative_path_string = root_ + uri.substr(uri_prefix_.size() - 1);
+  } else {
+    return ERROR;
+  }
+
+  boost::filesystem::path relative_path(relative_path_string);
 
   if (boost::filesystem::exists(relative_path)
       && boost::filesystem::is_regular_file(relative_path)) {
@@ -24,36 +64,32 @@ void StaticRequestHandler::handle_request(const Request &request,
 
     // get name of base directory
     std::string dir = boost::filesystem::canonical(
-        boost::filesystem::path(request.base_path)).filename().string();
+        boost::filesystem::path(root_)).filename().string();
 
     // if base directory is in absolute path (file is within the base directory)
     if (absolute_path.string().find(dir) != std::string::npos) {
       boost::filesystem::ifstream ifs(absolute_path, std::ios::in | std::ios::binary);
       if (ifs) {
-        // read file into content
+        // read file into response body
         std::ostringstream oss;
         oss << ifs.rdbuf();
         ifs.close();
-        response.content = oss.str();
+        response.SetBody(oss.str());
 
         // set mime type
         std::string extension = absolute_path.extension().string();
-        Header mime_type = {"Content-Type", get_mime_type(extension)};
-        response.headers.push_back(mime_type);
+        response.AddHeader("Content-Type", GetMimeType(extension));
 
-        response.status = 200;
-      } else {
-        response.status = 404;
-      }
-    } else {
-      response.status = 404;
+        response.SetStatus(OK);
+        return OK;
+      } 
     }
-  } else {
-    response.status = 404;
-  }
+
+  response.SetStatus(NOT_FOUND);
+  return NOT_FOUND;
 }
 
-std::string get_mime_type(std::string extension) {
+std::string StaticHandler::GetMimeType(std::string extension) {
   std::unordered_map<std::string, std::string> mime_map;
   mime_map[".gif"] = "image/gif";
   mime_map[".htm"] = "text/html";
