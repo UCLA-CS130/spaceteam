@@ -33,6 +33,9 @@ class Connection
   boost::asio::ip::tcp::socket& socket();
   void start();
 
+  // Helper method, public for testing
+  std::string shortenPath(std::string path);
+
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
   Connection(boost::asio::io_service& io_service, 
@@ -45,6 +48,8 @@ class Connection
   void do_write(Response &response);
   bool handle_write(const boost::system::error_code& error,
                     std::size_t bytes_transferred);
+
+
 
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;

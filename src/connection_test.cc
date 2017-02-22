@@ -28,6 +28,18 @@ class ConnectionTest : public ::testing::Test {
   Connection::pointer connection_;
 };
 
+TEST_F(ConnectionTest, shortenPathNoSlash) {
+  EXPECT_EQ(connection_->shortenPath("sandwich"), "");
+}
+
+TEST_F(ConnectionTest, shortenPathSlash) {
+  EXPECT_EQ(connection_->shortenPath("/sandwich"), "/");
+}
+
+TEST_F(ConnectionTest, shortenPathCorrect) {
+  EXPECT_EQ(connection_->shortenPath("/sandwich/cheese.html"), "/sandwich");
+}
+
 TEST_F(ConnectionTest, HandleReadSuccess) {
   boost::system::error_code ec = 
       boost::system::errc::make_error_code(boost::system::errc::success);
