@@ -88,7 +88,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
 void Connection::do_write(Response &response) {
   boost::asio::async_write(
       socket_,
-      boost::asio::buffer(response.to_string()),
+      boost::asio::buffer(response.ToString()),
       boost::bind(
           &Connection::handle_write, 
           shared_from_this(), 

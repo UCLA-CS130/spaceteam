@@ -1,6 +1,8 @@
 #ifndef REQUEST_HANDLER_H
 #define REQUEST_HANDLER_H
 
+#include <string>
+#include <unordered_map>
 #include "request.h"
 #include "response.h"
 #include "config_parser.h"
@@ -10,9 +12,9 @@
 class RequestHandler {
  public:
   enum Status {
-    OK = 0;
-    ERROR = 1;
-    NOT_FOUND = 2;
+    OK = 0,
+    ERROR = 1,
+    NOT_FOUND = 2
   };
   
   // Initializes the handler. Returns a response code indicating success or
@@ -33,7 +35,7 @@ class RequestHandler {
   // Helper function to parse through handler config
   // returns map of names and their corresponding parameters
   using ConfigMap = std::unordered_map<std::string, std::string>;
-  void parseHandlerConfig(NginxConfig& config);
+  void ParseConfig(const NginxConfig& config);
   ConfigMap config_map_;
 };
 

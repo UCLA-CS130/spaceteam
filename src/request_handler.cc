@@ -1,46 +1,46 @@
+#include <string>
+#include <sstream>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <string>
-#include <unordered_map>
 #include "request_handler.h"
 
-void RequestHandler::ParseConfig(NginxConfig& config) {
+void RequestHandler::ParseConfig(const NginxConfig& config) {
   for (auto statement : config.statements_) {
     config_map_[statement->tokens_[0]] = statement->tokens_[1];
   }
 }
 
-Status EchoHandler::Init(const std::string& uri_prefix,
-                         const NginxConfig& /*config*/) {
+RequestHandler::Status EchoHandler::Init(const std::string& uri_prefix,
+                                         const NginxConfig& /*config*/) {
   uri_prefix_ = uri_prefix;
   return OK;
 }
 
 // todo: check if request.uri() matches uri_prefix_ ?
-Status EchoHandler::HandleRequest(const Request& request,
-                                  Response* response) {
+RequestHandler::Status EchoHandler::HandleRequest(const Request& request,
+                                                  Response* response) {
   if (response == nullptr) {
     return ERROR;
   }
 
-  response->SetStatus(OK);
+  response->SetStatus(Response::OK);
   response->AddHeader("Content-Type", "text/plain");
   response->SetBody(request.raw_request());
 
   return OK;
 }
 
-Status StaticHandler::Init(const std::string& uri_prefix,
-                           const NginxConfig& config) {
+RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
+                                           const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
-  ParseConfig(config);
+  RequestHandler::ParseConfig(config);
   root_ = config_map_["root"];
   return OK;
 }
 
 // todo: add request validation
-Status StaticHandler::HandleRequest(const Request& request,
-                                    Response* response) {
+RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
+                                                    Response* response) {
   if (response == nullptr) {
     return ERROR;
   }
@@ -74,18 +74,19 @@ Status StaticHandler::HandleRequest(const Request& request,
         std::ostringstream oss;
         oss << ifs.rdbuf();
         ifs.close();
-        response.SetBody(oss.str());
+        response->SetBody(oss.str());
 
         // set mime type
         std::string extension = absolute_path.extension().string();
-        response.AddHeader("Content-Type", GetMimeType(extension));
+        response->AddHeader("Content-Type", GetMimeType(extension));
 
-        response.SetStatus(OK);
+        response->SetStatus(Response::OK);
         return OK;
       } 
     }
+  }
 
-  response.SetStatus(NOT_FOUND);
+  response->SetStatus(Response::NOT_FOUND);
   return NOT_FOUND;
 }
 
@@ -98,9 +99,8 @@ std::string StaticHandler::GetMimeType(std::string extension) {
   mime_map[".jpeg"] = "image/jpeg";
   mime_map[".png"] = "image/png";
 
-  if (mime_map.count(extension) > 0) {
-    return mime_map[extension];
-  } else {
+  if (mime_map.count(extension) == 0) {
     return "text/plain";
   }
+  return mime_map[extension];
 }

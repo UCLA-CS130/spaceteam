@@ -2,7 +2,8 @@
 #define RESPONSE_H
 
 #include <string>
-#include <pair>
+#include <utility>
+#include <vector>
 
 // Represents an HTTP response.
 //
@@ -18,9 +19,9 @@ class Response {
  public:
   enum ResponseCode {
     // Define your HTTP response codes here.
-    OK = 200;
-    NOT_FOUND = 404;
-    INTERNAL_SERVER_ERROR = 500;
+    OK = 200,
+    NOT_FOUND = 404,
+    INTERNAL_SERVER_ERROR = 500
   };
   
   void SetStatus(const ResponseCode response_code);
