@@ -4,15 +4,20 @@
 #include <boost/filesystem/fstream.hpp>
 #include "request_handler.h"
 
+// todo: put each request handler into a separate file
+
+const std::string CONTENT_TYPE = "Content-Type";
+const std::string TEXT_PLAIN = "text/plain";
+const std::string STATIC_CONFIG_ROOT_KEY = "root";
+
 void RequestHandler::ParseConfig(const NginxConfig& config) {
   for (auto statement : config.statements_) {
     config_map_[statement->tokens_[0]] = statement->tokens_[1];
   }
 }
 
-RequestHandler::Status EchoHandler::Init(const std::string& uri_prefix,
+RequestHandler::Status EchoHandler::Init(const std::string& /*uri_prefix*/,
                                          const NginxConfig& /*config*/) {
-  uri_prefix_ = uri_prefix;
   return OK;
 }
 
@@ -24,7 +29,7 @@ RequestHandler::Status EchoHandler::HandleRequest(const Request& request,
   }
 
   response->SetStatus(Response::OK);
-  response->AddHeader("Content-Type", "text/plain");
+  response->AddHeader(CONTENT_TYPE, TEXT_PLAIN);
   response->SetBody(request.raw_request());
 
   return OK;
@@ -34,7 +39,7 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
                                            const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
   RequestHandler::ParseConfig(config);
-  root_ = config_map_["root"];
+  root_ = config_map_[STATIC_CONFIG_ROOT_KEY];
   return OK;
 }
 
@@ -78,7 +83,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
 
         // set mime type
         std::string extension = absolute_path.extension().string();
-        response->AddHeader("Content-Type", GetMimeType(extension));
+        response->AddHeader(CONTENT_TYPE, GetMimeType(extension));
 
         response->SetStatus(Response::OK);
         return OK;

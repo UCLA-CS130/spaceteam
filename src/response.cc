@@ -18,7 +18,8 @@ void Response::SetStatus(const ResponseCode response_code) {
   }
 }
   
-void Response::AddHeader(const std::string& header_name, const std::string& header_value) {
+void Response::AddHeader(const std::string& header_name, 
+                         const std::string& header_value) {
   headers_.push_back(std::make_pair(header_name, header_value));
 }
 
