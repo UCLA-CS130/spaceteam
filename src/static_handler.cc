@@ -34,6 +34,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
 
   if (boost::filesystem::exists(relative_path)
       && boost::filesystem::is_regular_file(relative_path)) {
+    // use absolute path to get rid of '..', symlinks, etc. in the path
     boost::filesystem::path absolute_path = boost::filesystem::canonical(
         relative_path);
 
