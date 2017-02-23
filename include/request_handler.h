@@ -30,15 +30,34 @@ class RequestHandler {
   virtual Status HandleRequest(const Request& request,
                                Response* response) = 0;
 
+  static RequestHandler* CreateByName(const char* type);
+
  protected:
   // Helper function to parse through handler config
   // returns map of names and their corresponding parameters
   using ConfigMap = std::unordered_map<std::string, std::string>;
   void ParseConfig(const NginxConfig& config);
   ConfigMap config_map_;
-  
+
   const std::string CONTENT_TYPE = "Content-Type";
   const std::string TEXT_PLAIN = "text/plain";
 };
+
+extern std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders;
+template<typename T>
+class RequestHandlerRegisterer {
+ public:
+  RequestHandlerRegisterer(const std::string& type) {
+    if (request_handler_builders == nullptr) {
+      request_handler_builders = new std::map<std::string, RequestHandler* (*)(void)>;
+    }
+    (*request_handler_builders)[type] = RequestHandlerRegisterer::Create;
+  }
+  static RequestHandler* Create() {
+    return new T;
+  }
+};
+#define REGISTER_REQUEST_HANDLER(ClassName) \
+  static RequestHandlerRegisterer<ClassName> ClassName##__registerer(#ClassName)
 
 #endif

@@ -23,4 +23,6 @@ class StaticHandler : public RequestHandler {
   const std::string CONFIG_ROOT_KEY = "root";
 };
 
+REGISTER_REQUEST_HANDLER(StaticHandler);
+
 #endif

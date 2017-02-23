@@ -15,4 +15,6 @@ class NotFoundHandler : public RequestHandler {
                        Response* response);
 };
 
+REGISTER_REQUEST_HANDLER(NotFoundHandler);
+
 #endif
