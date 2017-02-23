@@ -8,6 +8,7 @@
 #include "config_parser.h"
 #include "server_info.h"
 #include "server.h"
+#include "request_handler.h"
 
 using boost::asio::ip::tcp;
 
@@ -17,7 +18,6 @@ Server *Server::makeServer(boost::asio::io_service& io_service,
   if (!getServerInfo(config_file, &info)) {
     return nullptr;  // error with config file
   }
-  printf("%s\n", info.ToString().c_str());
 
   return new Server(io_service, info);
 
@@ -99,6 +99,7 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       PathInfo pathInfo;
       pathInfo.handler_id = config.statements_[i]->tokens_[2];
       pathInfo.config = config.statements_[i]->child_block_.get();
+      pathInfo.handler = RequestHandler::CreateByName(pathInfo.handler_id.c_str());
       info->path_to_info[name] = pathInfo;
 
     } else {

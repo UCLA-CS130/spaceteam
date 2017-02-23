@@ -2,7 +2,7 @@
 #define SERVER_H
 
 #include <boost/asio.hpp>
-#include <vector>
+#include <map>
 
 #include "connection.h"
 #include "server_info.h"

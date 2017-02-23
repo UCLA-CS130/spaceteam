@@ -1,6 +1,0 @@
-foo bar;
-port 1890;
-path /echo EchoHandler {}
-path /static StaticFileHandler {
-  root static_files;
-}
