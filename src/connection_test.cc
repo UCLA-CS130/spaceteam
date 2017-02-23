@@ -28,16 +28,16 @@ class ConnectionTest : public ::testing::Test {
   Connection::pointer connection_;
 };
 
-TEST_F(ConnectionTest, shortenPathNoSlash) {
-  EXPECT_EQ(connection_->shortenPath("sandwich"), "");
+TEST_F(ConnectionTest, ShortenUriPrefixNoSlash) {
+  EXPECT_EQ(connection_->ShortenUriPrefix("sandwich"), "");
 }
 
-TEST_F(ConnectionTest, shortenPathSlash) {
-  EXPECT_EQ(connection_->shortenPath("/sandwich"), "/");
+TEST_F(ConnectionTest, ShortenUriPrefixSlash) {
+  EXPECT_EQ(connection_->ShortenUriPrefix("/sandwich"), "/");
 }
 
-TEST_F(ConnectionTest, shortenPathCorrect) {
-  EXPECT_EQ(connection_->shortenPath("/sandwich/cheese.html"), "/sandwich");
+TEST_F(ConnectionTest, ShortenUriPrefixCorrect) {
+  EXPECT_EQ(connection_->ShortenUriPrefix("/sandwich/cheese.html"), "/sandwich");
 }
 
 TEST_F(ConnectionTest, HandleReadSuccess) {
