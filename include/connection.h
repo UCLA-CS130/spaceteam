@@ -34,7 +34,7 @@ class Connection
   void start();
 
   // Helper method, public for testing
-  std::string shortenPath(std::string path);
+  std::string ShortenUriPrefix(std::string path);
 
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
