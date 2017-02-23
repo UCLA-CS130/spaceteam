@@ -11,10 +11,7 @@ class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
     injectTestMaps();
-    // TODO: Fix which map should be added to.
-    // This is incorrect. Should have TWO arguments in using the MAP
-    // Made a temp fix to make passing tests.
-    connection_ = Connection::create(io_service_);
+    connection_ = Connection::create(io_service_, &path_to_handler_);
   }
   
   // Inject the maps created before connection is initialized.
@@ -23,7 +20,7 @@ class ConnectionTest : public ::testing::Test {
   }
 
   boost::asio::io_service io_service_;
-  std::map<std::string, std::string> path_to_handler_;
+  std::map<std::string, RequestHandler*> path_to_handler_;
   Connection::pointer connection_;
 };
 
