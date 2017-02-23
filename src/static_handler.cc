@@ -12,14 +12,15 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
   return OK;
 }
 
-// todo: add request validation
+// TODO: add request validation?
 RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
                                                     Response* response) {
   if (response == nullptr) {
     return ERROR;
   }
 
-  // todo: change how we get relative_path
+  // get relative path by taking the request URI, removing the StaticHandler's
+  // URI prefix, and prepending the root path
   std::string uri = request.uri();
   std::string relative_path_string;
   if (uri != uri_prefix_ 
@@ -29,12 +30,12 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   } else {
     return ERROR;
   }
-
   boost::filesystem::path relative_path(relative_path_string);
 
   if (boost::filesystem::exists(relative_path)
       && boost::filesystem::is_regular_file(relative_path)) {
-    boost::filesystem::path absolute_path = boost::filesystem::canonical(relative_path);
+    boost::filesystem::path absolute_path = boost::filesystem::canonical(
+        relative_path);
 
     // get name of base directory
     std::string dir = boost::filesystem::canonical(
@@ -42,7 +43,8 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
 
     // if base directory is in absolute path (file is within the base directory)
     if (absolute_path.string().find(dir) != std::string::npos) {
-      boost::filesystem::ifstream ifs(absolute_path, std::ios::in | std::ios::binary);
+      boost::filesystem::ifstream ifs(absolute_path, 
+                                      std::ios::in | std::ios::binary);
       if (ifs) {
         // read file into response body
         std::ostringstream oss;
