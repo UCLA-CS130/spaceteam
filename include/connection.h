@@ -52,7 +52,7 @@ class Connection
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
   // Maps given by server.cc to keep track of url paths to info
-  std::unordered_map<std::string, PathInfo>* path_to_info_;
+  std::map<std::string, PathInfo>* path_to_info_;
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION
