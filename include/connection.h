@@ -33,6 +33,9 @@ class Connection
   boost::asio::ip::tcp::socket& socket();
   void start();
 
+  // Helper method, public for testing
+  std::string ShortenUriPrefix(std::string path);
+
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
   Connection(boost::asio::io_service& io_service, 

@@ -46,43 +46,81 @@ bool Connection::handle_read(const boost::system::error_code& error,
     return false; // error
   }
 
-  // RequestParser will insert data into the request struct
-  Request request;
-  // TODO: use the parser to parse the request.
-  // std::tie(result, std::ignore) = request_parser_.parse(
-  //     request, buffer_.data(), buffer_.data() + bytes_transferred);
-  // The line under this is meant to keep it compiling.
-  // result = Request::good;
+  // TODO: tentative if this is good practice for sending the string
+  // std::string buffer_string = std::string(buffer_);
+  std::string buffer_string;
+  std::copy(buffer_.begin(), buffer_.begin()+bytes_transferred, std::back_inserter(buffer_string));
 
-  // if (result == Request::good) {
-    // You'll need this: RequestHandler request_handler;
-    // Need to iterate through handler_id possibilities by longest prefix
-    // So... maybe add a for loop or something?
-    // std::string handler_id = request.uri(); // recommend changing name to handler_id in Request struct
-    // for(auto const &e : *path_to_info_) {
-      // if(e.first == handler_id) {
-        // Instantiate a handler --> see https://piazza.com/class/iwy6115h8ce37q?cid=68
-        // request_handler = RequestHandler::???(handler_id);
-        // break;
-      // }
-    // }
-    // detect if request_handler never got initialized
-    // if so set it to a default handler, or maybe just return false ?
-    Response response;
-    // request_handler->handle_request(request, response);
+  // RequestParser will insert data into the request struct
+  std::unique_ptr<Request> request = Request::Parse(buffer_string);
+
+  // TODO: Decide if we want to check "status" to see if it parsed correctly...
+  // If so, we may need to make the enum result_type public or play with 0, 1, 2 values
+
+  // TODO: problem - can't use an abstract handler... maybe default to echo handler? 
+  // RequestHandler request_handler;
+
+  std::string handler_uri_prefix = request->uri();
+    
+  // Need to iterate through handler_id possibilities by longest prefix
+  // TODO: Decide if we want to limit handler_id to "/" or ""
+  while (handler_uri_prefix != "") {
+    // Check the map to see if it holds handler_id
+    if (path_to_info_->count(handler_uri_prefix) > 0) {
+      PathInfo path_info = path_to_info_->at(handler_uri_prefix);
+      // TODO: Set the request handler accordingly.
+      // request_handler = ????????????
+      break;
+    } else {
+      // map does NOT contain handler id.. so reduce string.
+      handler_uri_prefix = ShortenUriPrefix(handler_uri_prefix);
+    }
+  }
+
+  // check if it was done or not
+
+  // detect if request_handler never got initialized
+  // if so set it to a default handler, or maybe just return false ?
+  Response response;
+  // request_handler->handle_request(request, response);
 
     /* Also note you can process the handler specific config
        into a nice map using parseHandlerConfig();
        which is defined in server_info.h but is throwing compile error heh */
     
-  //   do_write(response);
+    do_write(response);
 
+  // if the request handler is not found, do_read
   // }
   // else {
   //   do_read();
   // }
 
   return true; // success
+}
+
+std::string Connection::ShortenUriPrefix(std::string uri_prefix) {
+  // Reached last possible path.
+  if (uri_prefix == "/") {
+    return "";
+  }
+
+  std::string::size_type pos = uri_prefix.rfind('/');
+
+  // If a slash is found, shorten to that slash.
+  if (pos != std::string::npos) {
+    std::string shortened = uri_prefix.substr(0, pos);
+    if (shortened != "") {
+      return shortened;
+    } else {
+      // Default to "/" if the string is at the highest folder.
+      return "/";
+    }
+  } else {
+    // Print error that there was text WITHOUT slash in the front.
+    std::cout << "Path given doesn't have a slash in front of it." << std::endl;
+    return "";
+  }
 }
 
 void Connection::do_write(Response &response) {
