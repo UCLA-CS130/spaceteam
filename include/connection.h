@@ -49,8 +49,6 @@ class Connection
   bool handle_write(const boost::system::error_code& error,
                     std::size_t bytes_transferred);
 
-
-
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
   // Maps given by server.cc to keep track of url paths to info
