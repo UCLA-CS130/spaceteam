@@ -5,6 +5,7 @@
 
 #include "gtest/gtest.h"
 #include "connection.h"
+#include "echo_handler.h"
 
 class ConnectionTest : public ::testing::Test {
  protected:
@@ -18,13 +19,11 @@ class ConnectionTest : public ::testing::Test {
   
   // Inject the maps created before connection is initialized.
   void injectTestMaps() {
-    echo_map_["/echo"] =  "";
-    static_map_["/static"] = "static_files";
+    path_to_handler_["/echo"] =  new EchoHandler();
   }
 
   boost::asio::io_service io_service_;
-  std::map<std::string, std::string> echo_map_;
-  std::map<std::string, std::string> static_map_;
+  std::map<std::string, std::string> path_to_handler_;
   Connection::pointer connection_;
 };
 
