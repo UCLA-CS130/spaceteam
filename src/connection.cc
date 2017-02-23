@@ -105,7 +105,6 @@ std::string Connection::ShortenUriPrefix(std::string uri_prefix) {
     return "";
   }
 
-  // Reverse the path to find the first instance of '/'
   std::string::size_type pos = uri_prefix.rfind('/');
 
   // If a slash is found, shorten to that slash.
