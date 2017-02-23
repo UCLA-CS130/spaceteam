@@ -13,8 +13,7 @@ class RequestHandler {
  public:
   enum Status {
     OK = 0,
-    ERROR = 1,
-    NOT_FOUND = 2
+    ERROR = 1
   };
   
   // Initializes the handler. Returns a response code indicating success or
@@ -59,6 +58,14 @@ class StaticHandler : public RequestHandler {
   
   std::string uri_prefix_;
   std::string root_;
+};
+
+class NotFoundHandler : public RequestHandler {
+ public:
+  Status Init(const std::string& uri_prefix,
+              const NginxConfig& config);
+  Status HandleRequest(const Request& request,
+                       Response* response);
 };
 
 #endif

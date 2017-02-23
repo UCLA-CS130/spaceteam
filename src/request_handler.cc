@@ -91,8 +91,10 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
     }
   }
 
-  response->SetStatus(Response::NOT_FOUND);
-  return NOT_FOUND;
+  NotFoundHandler not_found_handler;
+  not_found_handler.HandleRequest(request, response);
+  
+  return OK;
 }
 
 std::string StaticHandler::GetMimeType(std::string extension) {
@@ -108,4 +110,18 @@ std::string StaticHandler::GetMimeType(std::string extension) {
     return "text/plain";
   }
   return mime_map[extension];
+}
+
+RequestHandler::Status NotFoundHandler::Init(const std::string& /*uri_prefix*/,
+                                                const NginxConfig& /*config*/) {
+  return OK;
+}
+
+RequestHandler::Status NotFoundHandler::HandleRequest(const Request& request,
+                                                         Response* response) {
+  response->SetStatus(Response::NOT_FOUND);
+  response->AddHeader(CONTENT_TYPE, TEXT_PLAIN);
+  response->SetBody("<!doctype html><html><body><h1>404 Not Found</h1></body></html>");
+
+  return OK;
 }
