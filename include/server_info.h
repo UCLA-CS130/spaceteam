@@ -10,14 +10,14 @@
 
 struct PathInfo {
 
-	/* Name must match id in corresponding request handler */
+  /* Name must match id in corresponding request handler */
   std::string handler_id;
 
   /* Contains the config for this particular handler */
   NginxConfig* config;
 
   /* Pointer to the actual handler object */
-	RequestHandler* handler;
+  RequestHandler* handler;
 
 };
 
