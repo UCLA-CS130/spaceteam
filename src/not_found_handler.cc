@@ -1,7 +1,7 @@
 #include "not_found_handler.h"
 
-RequestHandler::Status NotFoundHandler::Init(const std::string& /*uri_prefix*/,
-                                                const NginxConfig& /*config*/) {
+RequestHandler::Status NotFoundHandler::Init(const std::string& uri_prefix,
+                                                const NginxConfig& config) {
   return OK;
 }
 

@@ -101,6 +101,18 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       handler->Init(name, *handler_config);
       info->uri_prefix_to_handler[name] = handler;
 
+    } else if (key == "default") {
+      if(config.statements_[i]->tokens_.size() != 2
+          || !config.statements_[i]->child_block_) {
+        return false;
+      }
+      std::string handler_id = config.statements_[i]->tokens_[1];
+      // NginxConfig* handler_config = config.statements_[i]->child_block_.get();
+      RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
+      std::string path = "default";
+      handler->Init(path.c_str(), *config.statements_[i]->child_block_);
+      info->uri_prefix_to_handler["default"] = handler;
+
     } else {
       printf ("Unexpected statment: %s %s;\n",
                 config.statements_[i]->tokens_[0].c_str(),
