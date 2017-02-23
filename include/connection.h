@@ -10,7 +10,6 @@
 
 #include "request.h"
 #include "response.h"
-#include "server_info.h"
 #include "request_handler.h"
 
 // only need gtest_prod.h when testing
@@ -29,7 +28,7 @@ class Connection
   typedef boost::shared_ptr<Connection> pointer;
   static pointer create(boost::asio::io_service& io_service);
   static pointer create(boost::asio::io_service& io_service, 
-                        std::map<std::string, PathInfo>* input_path_to_info);
+                        std::map<std::string, RequestHandler*>* input_path_to_handler);
   boost::asio::ip::tcp::socket& socket();
   void start();
 
@@ -39,9 +38,9 @@ class Connection
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
   Connection(boost::asio::io_service& io_service, 
-             std::map<std::string, PathInfo>* input_path_to_info)
+             std::map<std::string, RequestHandler*>* input_path_to_handler)
              : socket_(io_service), 
-               path_to_info_(input_path_to_info) {}
+               path_to_handler_(input_path_to_handler) {}
   void do_read();
   bool handle_read(const boost::system::error_code& error, 
                    std::size_t bytes_transferred);
@@ -52,7 +51,7 @@ class Connection
   std::array<char, BUFFER_SIZE> buffer_;
   boost::asio::ip::tcp::socket socket_;
   // Maps given by server.cc to keep track of url paths to info
-  std::map<std::string, PathInfo>* path_to_info_;
+  std::map<std::string, RequestHandler*>* path_to_handler_;
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION
