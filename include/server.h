@@ -12,7 +12,7 @@ struct ServerInfo {
   int port;
 
   /* Maps url path to its config */
-  std::map<std::string, RequestHandler*> path_to_handler;
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler;
 
 };
 
@@ -36,7 +36,7 @@ class Server {
   boost::asio::ip::tcp::acceptor acceptor_;
   int port_;
   /* Maps url path to its handler */
-  std::map<std::string, RequestHandler*> path_to_handler_;
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
 };
 
 #endif

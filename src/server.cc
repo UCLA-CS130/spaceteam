@@ -27,7 +27,7 @@ Server::Server(boost::asio::io_service& io_service,
     : acceptor_(io_service) {
   
   port_ = info.port;
-  path_to_handler_ = info.path_to_handler;
+  uri_prefix_to_handler_ = info.uri_prefix_to_handler;
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());
@@ -43,7 +43,7 @@ Server::Server(boost::asio::io_service& io_service,
 void Server::start_accept() {
   Connection::pointer new_connection =
       Connection::create(acceptor_.get_io_service(),
-                         &path_to_handler_);
+                         &uri_prefix_to_handler_);
 
   acceptor_.async_accept(
       new_connection->socket(),
@@ -99,7 +99,7 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       NginxConfig* handler_config = config.statements_[i]->child_block_.get();
       RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
       handler->Init(name, *handler_config);
-      info->path_to_handler[name] = handler;
+      info->uri_prefix_to_handler[name] = handler;
 
     } else {
       printf ("Unexpected statment: %s %s;\n",
