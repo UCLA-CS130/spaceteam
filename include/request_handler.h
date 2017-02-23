@@ -36,36 +36,9 @@ class RequestHandler {
   using ConfigMap = std::unordered_map<std::string, std::string>;
   void ParseConfig(const NginxConfig& config);
   ConfigMap config_map_;
-};
-
-class EchoHandler : public RequestHandler {
- public:
-  Status Init(const std::string& uri_prefix,
-              const NginxConfig& config);
-  Status HandleRequest(const Request& request,
-                       Response* response);
-};
-
-class StaticHandler : public RequestHandler {
- public:
-  Status Init(const std::string& uri_prefix,
-              const NginxConfig& config);
-  Status HandleRequest(const Request& request,
-                       Response* response);
-
- private:
-  std::string GetMimeType(std::string extension);
   
-  std::string uri_prefix_;
-  std::string root_;
-};
-
-class NotFoundHandler : public RequestHandler {
- public:
-  Status Init(const std::string& uri_prefix,
-              const NginxConfig& config);
-  Status HandleRequest(const Request& request,
-                       Response* response);
+  const std::string CONTENT_TYPE = "Content-Type";
+  const std::string TEXT_PLAIN = "text/plain";
 };
 
 #endif
