@@ -60,21 +60,20 @@ bool Connection::handle_read(const boost::system::error_code& error,
   // TODO: problem - can't use an abstract handler... maybe default to echo handler? 
   // RequestHandler request_handler;
 
-  std::string handler_id = request->uri();
+  std::string handler_uri_prefix = request->uri();
     
   // Need to iterate through handler_id possibilities by longest prefix
   // TODO: Decide if we want to limit handler_id to "/" or ""
-  while (handler_id != "") {
+  while (handler_uri_prefix != "") {
     // Check the map to see if it holds handler_id
-    std::map<std::string, PathInfo>::iterator found_info_iterator = path_to_info_->find(handler_id);
-    if (found_info_iterator != path_to_info_->end()) {
+    if (path_to_info_->count(handler_uri_prefix) > 0) {
       PathInfo path_info = found_info_iterator->second;
       // TODO: Set the request handler accordingly.
       // request_handler = ????????????
       break;
     } else {
       // map does NOT contain handler id.. so reduce string.
-      handler_id = shortenPath(handler_id);
+      handler_uri_prefix = ShortenUriPrefix(handler_uri_prefix);
     }
   }
 
@@ -100,25 +99,22 @@ bool Connection::handle_read(const boost::system::error_code& error,
   return true; // success
 }
 
-std::string Connection::shortenPath(std::string path) {
+std::string Connection::ShortenUriPrefix(std::string uri_prefix) {
   // Reached last possible path.
-  if (path == "/") {
+  if (uri_prefix == "/") {
     return "";
   }
 
   // Reverse the path to find the first instance of '/'
-  std::string reversed(path);
-  std::reverse(reversed.begin(), reversed.end());
-  std::string::size_type pos = reversed.find('/');
+  std::string::size_type pos = uri_prefix.rfind('/');
 
   // If a slash is found, shorten to that slash.
   if (pos != std::string::npos) {
-    int endpos = path.size() - (pos+1);
-    std::string shortened = path.substr(0, endpos);
+    std::string shortened = uri_prefix.substr(0, pos);
     if (shortened != "") {
       return shortened;
     } else {
-      // Default to "/" if the string has no more slashes.
+      // Default to "/" if the string is at the highest folder.
       return "/";
     }
   } else {
