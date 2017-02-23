@@ -5,7 +5,6 @@
 #include "connection.h"
 #include "request_handler.h"
 #include "response.h"
-#include "server_info.h"
 
 using boost::asio::ip::tcp;
 
@@ -18,8 +17,8 @@ Connection::pointer Connection::create(boost::asio::io_service& io_service) {
 }
 
 Connection::pointer Connection::create(boost::asio::io_service& io_service, 
-                                       std::map<std::string, PathInfo>* input_path_to_info) {
-  return pointer(new Connection(io_service, input_path_to_info));
+                                       std::map<std::string, RequestHandler*>* input_path_to_handler) {
+  return pointer(new Connection(io_service, input_path_to_handler));
 }
 
 tcp::socket& Connection::socket() {
@@ -66,8 +65,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
   // TODO: Decide if we want to limit handler_id to "/" or ""
   while (handler_uri_prefix != "") {
     // Check the map to see if it holds handler_id
-    if (path_to_info_->count(handler_uri_prefix) > 0) {
-      PathInfo path_info = path_to_info_->at(handler_uri_prefix);
+    if (path_to_handler_->count(handler_uri_prefix) > 0) {
       // TODO: Set the request handler accordingly.
       // request_handler = ????????????
       break;

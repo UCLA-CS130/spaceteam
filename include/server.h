@@ -2,11 +2,19 @@
 #define SERVER_H
 
 #include <boost/asio.hpp>
-#include <vector>
+#include <map>
+#include <string>
 
 #include "connection.h"
-#include "server_info.h"
 #include "request_handler.h"
+
+struct ServerInfo {
+  int port;
+
+  /* Maps url path to its config */
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler;
+
+};
 
 class Server {
  public:
@@ -27,8 +35,8 @@ class Server {
 
   boost::asio::ip::tcp::acceptor acceptor_;
   int port_;
-  /* Maps url path to its info */
-  std::map<std::string, PathInfo> path_to_info_;
+  /* Maps url path to its handler */
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
 };
 
 #endif
