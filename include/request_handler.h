@@ -13,8 +13,7 @@ class RequestHandler {
  public:
   enum Status {
     OK = 0,
-    ERROR = 1,
-    NOT_FOUND = 2
+    ERROR = 1
   };
   
   // Initializes the handler. Returns a response code indicating success or
@@ -31,34 +30,34 @@ class RequestHandler {
   virtual Status HandleRequest(const Request& request,
                                Response* response) = 0;
 
+  static RequestHandler* CreateByName(const char* type);
+
  protected:
   // Helper function to parse through handler config
   // returns map of names and their corresponding parameters
   using ConfigMap = std::unordered_map<std::string, std::string>;
   void ParseConfig(const NginxConfig& config);
   ConfigMap config_map_;
+
+  const std::string CONTENT_TYPE = "Content-Type";
+  const std::string TEXT_PLAIN = "text/plain";
 };
 
-class EchoHandler : public RequestHandler {
+extern std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders;
+template<typename T>
+class RequestHandlerRegisterer {
  public:
-  Status Init(const std::string& uri_prefix,
-              const NginxConfig& config);
-  Status HandleRequest(const Request& request,
-                       Response* response);
+  RequestHandlerRegisterer(const std::string& type) {
+    if (request_handler_builders == nullptr) {
+      request_handler_builders = new std::map<std::string, RequestHandler* (*)(void)>;
+    }
+    (*request_handler_builders)[type] = RequestHandlerRegisterer::Create;
+  }
+  static RequestHandler* Create() {
+    return new T;
+  }
 };
-
-class StaticHandler : public RequestHandler {
- public:
-  Status Init(const std::string& uri_prefix,
-              const NginxConfig& config);
-  Status HandleRequest(const Request& request,
-                       Response* response);
-
- private:
-  std::string GetMimeType(std::string extension);
-  
-  std::string uri_prefix_;
-  std::string root_;
-};
+#define REGISTER_REQUEST_HANDLER(ClassName) \
+  static RequestHandlerRegisterer<ClassName> ClassName##__registerer(#ClassName)
 
 #endif
