@@ -67,7 +67,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
   while (handler_uri_prefix != "") {
     // Check the map to see if it holds handler_id
     if (path_to_info_->count(handler_uri_prefix) > 0) {
-      PathInfo path_info = found_info_iterator->second;
+      PathInfo path_info = path_to_info_[handler_uri_prefix];
       // TODO: Set the request handler accordingly.
       // request_handler = ????????????
       break;
