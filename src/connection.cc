@@ -71,12 +71,12 @@ bool Connection::handle_read(const boost::system::error_code& error,
   if (request_handler != NULL) {
     Response response;
     request_handler->HandleRequest(*request, &response);
-    std::cerr << "Found Request Handler matching this path." << std::endl;
+    std::cerr << "using Request Handler with prefix " << handler_uri_prefix << " matching this path: " << request->uri() << std::endl;
     do_write(response);
   } else {
     // Request Handler not found.
     do_read();
-    std::cerr << "Did not find any Request Handlers matching this path." << std::endl;
+    std::cerr << "Did not find any Request Handlers matching this path: " << request->uri() << std::endl;
   }
   return true; // success
 }
@@ -99,8 +99,7 @@ std::string Connection::ShortenUriPrefix(std::string uri_prefix) {
       return "/";
     }
   } else {
-    // Print error that there was text WITHOUT slash in the front.
-    std::cout << "Path given doesn't have a slash in front of it." << std::endl;
+    std::cerr << "Path given doesn't have a slash in front of it." << std::endl;
     return "";
   }
 }

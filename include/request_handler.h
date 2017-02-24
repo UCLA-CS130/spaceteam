@@ -38,9 +38,6 @@ class RequestHandler {
   using ConfigMap = std::unordered_map<std::string, std::string>;
   void ParseConfig(const NginxConfig& config);
   ConfigMap config_map_;
-
-  const std::string CONTENT_TYPE = "Content-Type";
-  const std::string TEXT_PLAIN = "text/plain";
 };
 
 extern std::map<std::string, RequestHandler* (*)(void)>* request_handler_builders;

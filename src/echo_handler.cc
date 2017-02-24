@@ -13,7 +13,7 @@ RequestHandler::Status EchoHandler::HandleRequest(const Request& request,
   }
 
   response->SetStatus(Response::OK);
-  response->AddHeader(CONTENT_TYPE, TEXT_PLAIN);
+  response->AddHeader(CONTENT_TYPE_, DEFAULT_CONTENT_TYPE_);
   response->SetBody(request.raw_request());
 
   return OK;

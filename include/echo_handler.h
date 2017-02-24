@@ -13,6 +13,10 @@ class EchoHandler : public RequestHandler {
               const NginxConfig& config);
   Status HandleRequest(const Request& request,
                        Response* response);
+
+ private:
+  const std::string CONTENT_TYPE_ = "Content-Type";
+  const std::string DEFAULT_CONTENT_TYPE_ = "text/plain";
 };
 
 REGISTER_REQUEST_HANDLER(EchoHandler);
