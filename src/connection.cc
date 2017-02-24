@@ -71,11 +71,12 @@ bool Connection::handle_read(const boost::system::error_code& error,
   if (request_handler != NULL) {
     std::cerr << "Did not find any Request Handlers matching this path." << std::endl;
     request_handler = new NotFoundHandler();
+  } else {
+    std::cerr << "Found Request Handler matching this path." << std::endl;
   }
 
   Response response;
   request_handler->HandleRequest(*request, &response);
-  std::cerr << "Found Request Handler matching this path." << std::endl;
   do_write(response);
   return true; // success
 }
