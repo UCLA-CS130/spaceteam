@@ -16,5 +16,6 @@ int main(int argc, char** argv) {
     return 1;
   }
   io_service.run();
+  delete server;
   return 0;
 }

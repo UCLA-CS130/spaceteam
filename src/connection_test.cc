@@ -5,25 +5,37 @@
 
 #include "gtest/gtest.h"
 #include "connection.h"
+#include "echo_handler.h"
 
 class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
     injectTestMaps();
-    connection_ = Connection::create(io_service_, &echo_map_, &static_map_);
+    connection_ = Connection::create(io_service_, &uri_prefix_to_handler_);
   }
   
   // Inject the maps created before connection is initialized.
   void injectTestMaps() {
-    echo_map_["/echo"] =  "";
-    static_map_["/static"] = "static_files";
+    uri_prefix_to_handler_["/echo"] =  &echo_handler;
   }
 
   boost::asio::io_service io_service_;
-  std::map<std::string, std::string> echo_map_;
-  std::map<std::string, std::string> static_map_;
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
+  EchoHandler echo_handler;
   Connection::pointer connection_;
 };
+
+TEST_F(ConnectionTest, ShortenUriPrefixNoSlash) {
+  EXPECT_EQ(connection_->ShortenUriPrefix("sandwich"), "");
+}
+
+TEST_F(ConnectionTest, ShortenUriPrefixSlash) {
+  EXPECT_EQ(connection_->ShortenUriPrefix("/sandwich"), "/");
+}
+
+TEST_F(ConnectionTest, ShortenUriPrefixCorrect) {
+  EXPECT_EQ(connection_->ShortenUriPrefix("/sandwich/cheese.html"), "/sandwich");
+}
 
 TEST_F(ConnectionTest, HandleReadSuccess) {
   boost::system::error_code ec = 

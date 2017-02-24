@@ -1,5 +1,12 @@
-port 1890;
-path /echo EchoHandler {}
-path /static StaticFileHandler {
+# This is a comment.
+
+port 2020;  # This is also a comment.
+
+path /static StaticHandler {
   root ./example_files;
 }
+
+path /echo EchoHandler {}
+
+# Default response handler if no handlers match.
+default NotFoundHandler {}

@@ -3,28 +3,31 @@
 #include <string>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <algorithm>
+
 #include "config_parser.h"
 #include "server.h"
+#include "request_handler.h"
 
 using boost::asio::ip::tcp;
 
-Server *Server::makeServer(boost::asio::io_service& io_service, const char* config_file) {
+Server *Server::makeServer(boost::asio::io_service& io_service,
+                           const char* config_file) {
   ServerInfo info;
   if (!getServerInfo(config_file, &info)) {
     return nullptr;  // error with config file
   }
-  printf("%s\n", info.ToString().c_str());
 
   return new Server(io_service, info);
 
 }
 
-Server::Server(boost::asio::io_service& io_service, const ServerInfo info)
+Server::Server(boost::asio::io_service& io_service,
+               const ServerInfo info)
     : acceptor_(io_service) {
   
   port_ = info.port;
-  static_path_to_root_ = info.static_path_to_root_;
-  echo_path_to_root_ = info.echo_path_to_root_;
+  uri_prefix_to_handler_ = info.uri_prefix_to_handler;
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());
@@ -39,7 +42,8 @@ Server::Server(boost::asio::io_service& io_service, const ServerInfo info)
 // to wait for a new connection
 void Server::start_accept() {
   Connection::pointer new_connection =
-      Connection::create(acceptor_.get_io_service(), &echo_path_to_root_, &static_path_to_root_);
+      Connection::create(acceptor_.get_io_service(),
+                         &uri_prefix_to_handler_);
 
   acceptor_.async_accept(
       new_connection->socket(),
@@ -64,38 +68,51 @@ bool Server::handle_accept(Connection::pointer new_connection,
 bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
   NginxConfigParser parser;
   NginxConfig config;
+
   if (!parser.Parse(file_name, &config)) {
     return false;
   }
   
-  for(unsigned i = 0; i < config.statements_.size(); i++) {
+  // Keep track of port and path names to detect duplicates
+  int port = -1;
+  std::vector<std::string> path_names;
+
+  for (size_t i = 0; i < config.statements_.size(); i++) {
     std::string key = config.statements_[i]->tokens_[0];
-    if(key == "port") {
-      info->port = std::stoi(config.statements_[i]->tokens_[1]);
+    if (key == "port") {
+      if (port != -1) {
+        return false; // found duplicate port
+      }
+      port = std::stoi(config.statements_[i]->tokens_[1]);
+
     } else if (key == "path") {
-      if(config.statements_[i]->tokens_.size() != 3
+      if (config.statements_[i]->tokens_.size() != 3
           || !config.statements_[i]->child_block_) {
         return false;
       }
-      // determine handler type
-      if(config.statements_[i]->tokens_[2] == "StaticFileHandler") {
-        if(config.statements_[i]->child_block_->statements_.size() != 0) {
-          info->static_path_to_root_[config.statements_[i]->tokens_[1]] =
-            config.statements_[i]->child_block_->statements_[0]->tokens_[1];
-          } else {
-            info->static_path_to_root_[config.statements_[i]->tokens_[1]] = "";
-          }
-      } else if(config.statements_[i]->tokens_[2] == "EchoHandler") {
-        if(config.statements_[i]->child_block_->statements_.size() != 0) {
-          info->echo_path_to_root_[config.statements_[i]->tokens_[1]] =
-            config.statements_[i]->child_block_->statements_[0]->tokens_[1];
-          } else {
-            info->echo_path_to_root_[config.statements_[i]->tokens_[1]] = "";
-          }
-      } else {
-        printf("Handler %s not recognized.", config.statements_[i]->tokens_[2].c_str());
+      std::string name = config.statements_[i]->tokens_[1];
+      if (std::find(path_names.begin(), path_names.end(), name) != path_names.end()) {
+        return false; // found duplicate path
+      }
+      path_names.push_back(config.statements_[i]->tokens_[1]);
+      std::string handler_id = config.statements_[i]->tokens_[2];
+      NginxConfig* handler_config = config.statements_[i]->child_block_.get();
+      RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
+      handler->Init(name, *handler_config);
+      info->uri_prefix_to_handler[name] = handler;
+
+    } else if (key == "default") {
+      if (config.statements_[i]->tokens_.size() != 2
+          || !config.statements_[i]->child_block_) {
         return false;
       }
+      std::string handler_id = config.statements_[i]->tokens_[1];
+      // NginxConfig* handler_config = config.statements_[i]->child_block_.get();
+      RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
+      std::string path = "default";
+      handler->Init(path.c_str(), *config.statements_[i]->child_block_);
+      info->uri_prefix_to_handler["default"] = handler;
+
     } else {
       printf ("Unexpected statment: %s %s;\n",
                 config.statements_[i]->tokens_[0].c_str(),
@@ -103,5 +120,6 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       return false;
     }
   }
+  info->port = port;
   return true;
 }

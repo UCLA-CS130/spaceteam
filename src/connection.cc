@@ -1,5 +1,7 @@
 #include <iostream>
 #include <boost/bind.hpp>
+#include <map>
+
 #include "connection.h"
 #include "request_handler.h"
 #include "response.h"
@@ -15,9 +17,8 @@ Connection::pointer Connection::create(boost::asio::io_service& io_service) {
 }
 
 Connection::pointer Connection::create(boost::asio::io_service& io_service, 
-                                       std::map<std::string, std::string>* input_echo_map_, 
-                                       std::map<std::string, std::string>* input_static_map_) {
-  return pointer(new Connection(io_service, input_echo_map_, input_static_map_));
+                                       std::map<std::string, RequestHandler*>* input_path_to_handler) {
+  return pointer(new Connection(io_service, input_path_to_handler));
 }
 
 tcp::socket& Connection::socket() {
@@ -44,44 +45,71 @@ bool Connection::handle_read(const boost::system::error_code& error,
     return false; // error
   }
 
+  std::string buffer_string;
+  std::copy(buffer_.begin(), buffer_.begin()+bytes_transferred, std::back_inserter(buffer_string));
+
   // RequestParser will insert data into the request struct
-  Request request;
-  RequestParser::result_type result;
-  std::tie(result, std::ignore) = request_parser_.parse(
-      request, buffer_.data(), buffer_.data() + bytes_transferred);
+  std::unique_ptr<Request> request = Request::Parse(buffer_string);
 
-  if (result == RequestParser::good) {
-    EchoRequestHandler echo_request_handler;
-    StaticRequestHandler static_request_handler;
-
-    // Default request handler
-    RequestHandler* request_handler = &echo_request_handler; 
-
-    if (static_map_->count(request.handler_path) > 0) {
-      request_handler = &static_request_handler;
-      request.base_path = static_map_->at(request.handler_path);
-    } else if (echo_map_->count(request.handler_path) == 0) {
-      // Directory for request is not found in either
-      // For the sake of this implementation, continue with EchoRequestHandler
-      std::cerr << "Couldn't find request.handler_path in echo_map_ or static_map_" << std::endl;
+  std::string handler_uri_prefix = request->uri();
+  // Holder for the request pointer
+  RequestHandler* request_handler = nullptr;
+    
+  // Iterate through handler_id possibilities by longest prefix.
+  while (handler_uri_prefix != "") {
+    // Check the map to see if it holds handler_id.
+    if (path_to_handler_->count(handler_uri_prefix) > 0) {
+      request_handler = path_to_handler_->at(handler_uri_prefix);
+      break;
+    } else {
+      // map does NOT contain handler id.. so reduce string.
+      handler_uri_prefix = ShortenUriPrefix(handler_uri_prefix);
     }
-
-    Response response;
-    request_handler->handle_request(request, response);
-    do_write(response);
-
-  }
-  else {
-    do_read();
   }
 
+  // check if it was done or not
+  if (request_handler == nullptr) {
+    std::cerr << "using Request Handler with prefix " << handler_uri_prefix 
+              << " matching this path: " << request->uri() << std::endl;
+    request_handler = path_to_handler_->at(DEFAULT_STRING);
+  } else {
+    std::cerr << "Did not find any Request Handlers matching this path: " 
+              << request->uri() << std::endl;
+  }
+
+  Response response;
+  request_handler->HandleRequest(*request, &response);
+  do_write(response);
   return true; // success
+}
+
+std::string Connection::ShortenUriPrefix(std::string uri_prefix) {
+  // Reached last possible path.
+  if (uri_prefix == "/") {
+    return "";
+  }
+
+  std::string::size_type pos = uri_prefix.rfind('/');
+
+  // If a slash is found, shorten to that slash.
+  if (pos != std::string::npos) {
+    std::string shortened = uri_prefix.substr(0, pos);
+    if (shortened != "") {
+      return shortened;
+    } else {
+      // Default to "/" if the string is at the highest folder.
+      return "/";
+    }
+  } else {
+    std::cerr << "Path given doesn't have a slash in front of it." << std::endl;
+    return "";
+  }
 }
 
 void Connection::do_write(Response &response) {
   boost::asio::async_write(
       socket_,
-      boost::asio::buffer(response.to_string()),
+      boost::asio::buffer(response.ToString()),
       boost::bind(
           &Connection::handle_write, 
           shared_from_this(), 

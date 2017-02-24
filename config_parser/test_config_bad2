@@ -1,2 +1,3 @@
 port 1890;
+port 1234; # duplicate port
 path /echo NotAHandler {}
