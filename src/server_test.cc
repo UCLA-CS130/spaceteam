@@ -10,33 +10,26 @@
 // Server initialization test
 TEST(ServerTest, SimpleServerTest) {
 	boost::asio::io_service io_service;
-	// TODO: Please fix this test after refactoring.
 
 	// "config" should eventually be moved to a global constant
-	// Server *server = Server::makeServer(io_service, "test_config");
-	// EXPECT_TRUE(server != nullptr);
-	// delete server;
+	Server *server = Server::makeServer(io_service, "test_config");
+	EXPECT_TRUE(server != nullptr);
+	delete server;
 }
 
 TEST(ServerInfoTest, GetServerInfo) {
-	// TODO: Please fix this test. 
-
-	// ServerInfo info;
-	// EXPECT_TRUE(Server::getServerInfo("test_config", &info));
-	// EXPECT_EQ(info.port, 1890);
-	// TODO: REFACTORING should change these values.
-	// EXPECT_EQ(info.echo_path_to_root_.size(), 1);
-	// EXPECT_EQ(info.static_path_to_root_.size(), 1);
-	// EXPECT_EQ(info.static_path_to_root_["/static"], "./example_files");
+	ServerInfo info;
+	EXPECT_TRUE(Server::getServerInfo("test_config", &info));
+	EXPECT_EQ(info.port, 2020);
+	EXPECT_EQ(info.uri_prefix_to_handler.size(), 3);
 }
 
-// TEST(ServerInfoTest, UnexpectedConfig) {
-// 	ServerInfo info;
-// 	EXPECT_FALSE(Server::getServerInfo("test_config_bad", &info));
-// }
+TEST(ServerInfoTest, UnexpectedConfig) {
+	ServerInfo info;
+	EXPECT_FALSE(Server::getServerInfo("test_config_bad", &info));
+}
 
 TEST(ServerInfoTest, UnexpectedHandlerConfig) {
-	// ServerInfo info;
-	// TODO: Please fix this test after refactoring is done.
-	// EXPECT_FALSE(Server::getServerInfo("test_config_bad2", &info));
+	ServerInfo info;
+	EXPECT_FALSE(Server::getServerInfo("test_config_bad2", &info));
 }

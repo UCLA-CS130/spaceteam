@@ -77,21 +77,21 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
   int port = -1;
   std::vector<std::string> path_names;
 
-  for(size_t i = 0; i < config.statements_.size(); i++) {
+  for (size_t i = 0; i < config.statements_.size(); i++) {
     std::string key = config.statements_[i]->tokens_[0];
-    if(key == "port") {
-      if(port != -1) {
+    if (key == "port") {
+      if (port != -1) {
         return false; // found duplicate port
       }
       port = std::stoi(config.statements_[i]->tokens_[1]);
 
     } else if (key == "path") {
-      if(config.statements_[i]->tokens_.size() != 3
+      if (config.statements_[i]->tokens_.size() != 3
           || !config.statements_[i]->child_block_) {
         return false;
       }
       std::string name = config.statements_[i]->tokens_[1];
-      if(std::find(path_names.begin(), path_names.end(), name) != path_names.end()) {
+      if (std::find(path_names.begin(), path_names.end(), name) != path_names.end()) {
         return false; // found duplicate path
       }
       path_names.push_back(config.statements_[i]->tokens_[1]);
@@ -100,6 +100,18 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
       handler->Init(name, *handler_config);
       info->uri_prefix_to_handler[name] = handler;
+
+    } else if (key == "default") {
+      if (config.statements_[i]->tokens_.size() != 2
+          || !config.statements_[i]->child_block_) {
+        return false;
+      }
+      std::string handler_id = config.statements_[i]->tokens_[1];
+      // NginxConfig* handler_config = config.statements_[i]->child_block_.get();
+      RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
+      std::string path = "default";
+      handler->Init(path.c_str(), *config.statements_[i]->child_block_);
+      info->uri_prefix_to_handler["default"] = handler;
 
     } else {
       printf ("Unexpected statment: %s %s;\n",
