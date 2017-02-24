@@ -21,7 +21,6 @@ TEST(ServerInfoTest, GetServerInfo) {
 	ServerInfo info;
 	EXPECT_TRUE(Server::getServerInfo("test_config", &info));
 	EXPECT_EQ(info.port, 2020);
-	// TODO: REFACTORING should change these values.
 	EXPECT_EQ(info.uri_prefix_to_handler.size(), 3);
 }
 
