@@ -20,7 +20,8 @@ class StaticHandler : public RequestHandler {
   std::string uri_prefix_;
   std::string root_;
 
-  const std::string CONFIG_ROOT_KEY = "root";
+  const std::string CONFIG_ROOT_KEY_ = "root";
+  const std::string CONTENT_TYPE_ = "Content-Type";
 };
 
 REGISTER_REQUEST_HANDLER(StaticHandler);

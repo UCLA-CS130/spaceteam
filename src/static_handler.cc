@@ -8,7 +8,7 @@ RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
                                            const NginxConfig& config) {
   uri_prefix_ = uri_prefix;
   RequestHandler::ParseConfig(config);
-  root_ = config_map_[CONFIG_ROOT_KEY];
+  root_ = config_map_[CONFIG_ROOT_KEY_];
   return OK;
 }
 
@@ -26,7 +26,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   if (uri != uri_prefix_ 
       && uri.size() > uri_prefix_.size() 
       && uri.substr(0, uri_prefix_.size()) == uri_prefix_) {
-    relative_path_string = root_ + uri.substr(uri_prefix_.size() - 1);
+    relative_path_string = root_ + uri.substr(uri_prefix_.size());
   } else {
     return ERROR;
   }
@@ -55,11 +55,11 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
 
         // set mime type
         std::string extension = absolute_path.extension().string();
-        response->AddHeader(CONTENT_TYPE, GetMimeType(extension));
+        response->AddHeader(CONTENT_TYPE_, GetMimeType(extension));
 
         response->SetStatus(Response::OK);
         return OK;
-      } 
+      }
     }
   }
 
