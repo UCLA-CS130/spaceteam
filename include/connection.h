@@ -53,6 +53,9 @@ class Connection
   // Maps given by server.cc to keep track of url paths to info
   std::map<std::string, RequestHandler*>* path_to_handler_;
 
+  // Allows NotFoundHandler to be used
+  const std::string DEFAULT_STRING = "default";
+
   // allow tests to access private members
   #ifdef TEST_CONNECTION
   FRIEND_TEST(ConnectionTest, HandleReadSuccess);

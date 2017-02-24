@@ -68,16 +68,18 @@ bool Connection::handle_read(const boost::system::error_code& error,
   }
 
   // check if it was done or not
-  if (request_handler != NULL) {
-    Response response;
-    request_handler->HandleRequest(*request, &response);
-    std::cerr << "using Request Handler with prefix " << handler_uri_prefix << " matching this path: " << request->uri() << std::endl;
-    do_write(response);
+  if (request_handler == nullptr) {
+    std::cerr << "using Request Handler with prefix " << handler_uri_prefix 
+              << " matching this path: " << request->uri() << std::endl;
+    request_handler = path_to_handler_->at(DEFAULT_STRING);
   } else {
-    // Request Handler not found.
-    do_read();
-    std::cerr << "Did not find any Request Handlers matching this path: " << request->uri() << std::endl;
+    std::cerr << "Did not find any Request Handlers matching this path: " 
+              << request->uri() << std::endl;
   }
+
+  Response response;
+  request_handler->HandleRequest(*request, &response);
+  do_write(response);
   return true; // success
 }
 

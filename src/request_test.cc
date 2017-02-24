@@ -21,7 +21,7 @@ class RequestTest : public ::testing::Test {
   }
 
   void properRequest() {
-    setUpRequest("GET /echo/hello/there.html HTTP/1.1\r\nname=1\r\n\r\n");
+    setUpRequest("GET /echo/hello/there.html HTTP/1.1\r\nAccept-Language: en-us\r\n\r\nname=1");
   }
 
   std::string test_buffer;
@@ -30,22 +30,27 @@ class RequestTest : public ::testing::Test {
 
 TEST_F(RequestTest, EmptyRequest) { 
   runParse();
-  // EXPECT_EQ(result, Request::result_type::indeterminate);
+  EXPECT_EQ(request->raw_request(), "");
+  EXPECT_EQ(request->parsed_status(), Request::result_type::good);
 }
 
 TEST_F(RequestTest, CorrectRequest) { 
   properRequest();
-  // EXPECT_EQ(result, Request::result_type::good);
-}
-
-// Correct Handler + File Paths
-TEST_F(RequestTest, CorrectPathsHandlerRequest) {
-  properRequest();
+  EXPECT_EQ(request->raw_request(), "GET /echo/hello/there.html HTTP/1.1\r\nAccept-Language: en-us\r\n\r\nname=1");
+  EXPECT_EQ(request->method(), "GET");
   EXPECT_EQ(request->uri(), "/echo/hello/there.html");
-  // EXPECT_EQ(result, Request::result_type::good);
+  EXPECT_EQ(request->version(), "1.1");
+  std::vector<std::pair<std::string, std::string>> req_headers = request->headers();
+  std::pair<std::string, std::string> first_header_pair = req_headers[0];
+  EXPECT_EQ(first_header_pair.first, "Accept-Language");
+  EXPECT_EQ(first_header_pair.second, "en-us");
+  EXPECT_EQ(request->body(), "name=1");
+  EXPECT_EQ(request->parsed_status(), Request::result_type::good);
 }
 
 TEST_F(RequestTest, IncorrectRequest) { 
   setUpRequest("asdfj<kl;");
-  // EXPECT_EQ(result, Request::result_type::bad);
+  // It should fail parsing as soon as it hits an invalid character.
+  EXPECT_EQ(request->raw_request(), "asdfj<");
+  EXPECT_EQ(request->parsed_status(), Request::result_type::bad);
 }
