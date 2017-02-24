@@ -20,6 +20,8 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   return parsed_request;
 }
 
+// Takes a single character, records it's position,
+// and changes the state based on it's current location
 Request::result_type Request::consume(char input) {
   raw_request_.push_back(input);
 
