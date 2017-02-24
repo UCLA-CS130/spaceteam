@@ -23,7 +23,7 @@ fi
 
 # # === Integration Test 2 ===
 # # Checking that the server can return a static file
-output2=$(curl http://localhost:2020/test.html | diff example_files/test.html - )
+output2=$(curl http://localhost:2020/static/test.html | diff example_files/test.html - )
 
 # # Checks that the diff produces no output, since the files should be the same.
 if [ -z $output2 ];
