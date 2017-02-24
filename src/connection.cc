@@ -53,7 +53,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
 
   std::string handler_uri_prefix = request->uri();
   // Holder for the request pointer
-  RequestHandler* request_handler;
+  RequestHandler* request_handler = nullptr;
     
   // Iterate through handler_id possibilities by longest prefix.
   while (handler_uri_prefix != "") {
@@ -69,10 +69,10 @@ bool Connection::handle_read(const boost::system::error_code& error,
 
   // check if it was done or not
   if (request_handler != NULL) {
-    Response* response = new Response();
-    request_handler->HandleRequest(*request, response);
+    Response response;
+    request_handler->HandleRequest(*request, &response);
     std::cerr << "Found Request Handler matching this path." << std::endl;
-    do_write(*response);
+    do_write(response);
   } else {
     // Request Handler not found.
     do_read();

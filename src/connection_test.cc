@@ -11,16 +11,17 @@ class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
     injectTestMaps();
-    connection_ = Connection::create(io_service_, &path_to_handler_);
+    connection_ = Connection::create(io_service_, &uri_prefix_to_handler_);
   }
   
   // Inject the maps created before connection is initialized.
   void injectTestMaps() {
-    path_to_handler_["/echo"] =  new EchoHandler();
+    uri_prefix_to_handler_["/echo"] =  &echo_handler;
   }
 
   boost::asio::io_service io_service_;
-  std::map<std::string, RequestHandler*> path_to_handler_;
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
+  EchoHandler echo_handler;
   Connection::pointer connection_;
 };
 
