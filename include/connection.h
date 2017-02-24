@@ -11,6 +11,7 @@
 #include "request.h"
 #include "response.h"
 #include "request_handler.h"
+#include "not_found_handler.h"
 
 // only need gtest_prod.h when testing
 #ifdef TEST_CONNECTION
