@@ -77,7 +77,6 @@ bool Connection::handle_read(const boost::system::error_code& error,
     // Request Handler not found.
     do_read();
     std::cerr << "Did not find any Request Handlers matching this path." << std::endl;
-    return false;
   }
   return true; // success
 }
