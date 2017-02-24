@@ -26,7 +26,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   if (uri != uri_prefix_ 
       && uri.size() > uri_prefix_.size() 
       && uri.substr(0, uri_prefix_.size()) == uri_prefix_) {
-    relative_path_string = root_ + uri.substr(uri_prefix_.size() - 1);
+    relative_path_string = root_ + uri.substr(uri_prefix_.size());
   } else {
     return ERROR;
   }
