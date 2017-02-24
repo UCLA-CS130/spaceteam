@@ -5,26 +5,23 @@
 
 #include "gtest/gtest.h"
 #include "connection.h"
+#include "echo_handler.h"
 
 class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
     injectTestMaps();
-    // TODO: Fix which map should be added to.
-    // This is incorrect. Should have TWO arguments in using the MAP
-    // Made a temp fix to make passing tests.
-    connection_ = Connection::create(io_service_);
+    connection_ = Connection::create(io_service_, &uri_prefix_to_handler_);
   }
   
   // Inject the maps created before connection is initialized.
   void injectTestMaps() {
-    echo_map_["/echo"] =  "";
-    static_map_["/static"] = "static_files";
+    uri_prefix_to_handler_["/echo"] =  &echo_handler;
   }
 
   boost::asio::io_service io_service_;
-  std::map<std::string, std::string> echo_map_;
-  std::map<std::string, std::string> static_map_;
+  std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
+  EchoHandler echo_handler;
   Connection::pointer connection_;
 };
 

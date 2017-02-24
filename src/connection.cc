@@ -45,29 +45,21 @@ bool Connection::handle_read(const boost::system::error_code& error,
     return false; // error
   }
 
-  // TODO: tentative if this is good practice for sending the string
-  // std::string buffer_string = std::string(buffer_);
   std::string buffer_string;
   std::copy(buffer_.begin(), buffer_.begin()+bytes_transferred, std::back_inserter(buffer_string));
 
   // RequestParser will insert data into the request struct
   std::unique_ptr<Request> request = Request::Parse(buffer_string);
 
-  // TODO: Decide if we want to check "status" to see if it parsed correctly...
-  // If so, we may need to make the enum result_type public or play with 0, 1, 2 values
-
-  // TODO: problem - can't use an abstract handler... maybe default to echo handler? 
-  // RequestHandler request_handler;
-
   std::string handler_uri_prefix = request->uri();
+  // Holder for the request pointer
+  RequestHandler* request_handler = nullptr;
     
-  // Need to iterate through handler_id possibilities by longest prefix
-  // TODO: Decide if we want to limit handler_id to "/" or ""
+  // Iterate through handler_id possibilities by longest prefix.
   while (handler_uri_prefix != "") {
-    // Check the map to see if it holds handler_id
+    // Check the map to see if it holds handler_id.
     if (path_to_handler_->count(handler_uri_prefix) > 0) {
-      // TODO: Set the request handler accordingly.
-      // request_handler = ????????????
+      request_handler = path_to_handler_->at(handler_uri_prefix);
       break;
     } else {
       // map does NOT contain handler id.. so reduce string.
@@ -76,24 +68,16 @@ bool Connection::handle_read(const boost::system::error_code& error,
   }
 
   // check if it was done or not
-
-  // detect if request_handler never got initialized
-  // if so set it to a default handler, or maybe just return false ?
-  Response response;
-  // request_handler->handle_request(request, response);
-
-    /* Also note you can process the handler specific config
-       into a nice map using parseHandlerConfig();
-       which is defined in server_info.h but is throwing compile error heh */
-    
+  if (request_handler != NULL) {
+    Response response;
+    request_handler->HandleRequest(*request, &response);
+    std::cerr << "Found Request Handler matching this path." << std::endl;
     do_write(response);
-
-  // if the request handler is not found, do_read
-  // }
-  // else {
-  //   do_read();
-  // }
-
+  } else {
+    // Request Handler not found.
+    do_read();
+    std::cerr << "Did not find any Request Handlers matching this path." << std::endl;
+  }
   return true; // success
 }
 
