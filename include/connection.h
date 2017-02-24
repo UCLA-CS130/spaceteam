@@ -11,7 +11,6 @@
 #include "request.h"
 #include "response.h"
 #include "request_handler.h"
-#include "not_found_handler.h"
 
 // only need gtest_prod.h when testing
 #ifdef TEST_CONNECTION
@@ -53,6 +52,9 @@ class Connection
   boost::asio::ip::tcp::socket socket_;
   // Maps given by server.cc to keep track of url paths to info
   std::map<std::string, RequestHandler*>* path_to_handler_;
+
+  // Allows NotFoundHandler to be used
+  const std::string DEFAULT_STRING = "default";
 
   // allow tests to access private members
   #ifdef TEST_CONNECTION
