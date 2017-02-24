@@ -3,8 +3,6 @@
 
 #include "request.h"
 
-#include <iostream>
-
 // Parse some data. The enum return value is good when a complete request has
 // been parsed, bad if the data is invalid, indeterminate when more data is
 // required. The InputIterator return value indicates how much of the input
