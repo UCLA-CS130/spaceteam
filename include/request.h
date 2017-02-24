@@ -22,9 +22,12 @@ class Request {
     Headers headers() const;
 
     std::string body() const;
-  private:
+
     // For testing successful parsing
     enum result_type { good, bad, indeterminate };
+    result_type parsed_status() const;
+
+  private:
     // Handle the next character of input.
     result_type consume(char input);
 
@@ -40,7 +43,6 @@ class Request {
     std::string file_path_;
     int http_version_major_;
     int http_version_minor_;
-    // current status of the parsed data
     result_type parsed_status_;
 
     // Check if a byte is an HTTP character.

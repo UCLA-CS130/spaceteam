@@ -3,6 +3,8 @@
 
 #include "request.h"
 
+#include <iostream>
+
 // Parse some data. The enum return value is good when a complete request has
 // been parsed, bad if the data is invalid, indeterminate when more data is
 // required. The InputIterator return value indicates how much of the input
@@ -10,7 +12,12 @@
 std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
   std::unique_ptr<Request> parsed_request(new Request());
   for (char c : raw_request) {
-    parsed_request->parsed_status_ = parsed_request->consume(c);
+    Request::result_type result = parsed_request->consume(c);
+    parsed_request->parsed_status_ = result;
+    // If there's a bad request, stop parsing.
+    if (result == Request::result_type::bad) {
+      break;
+    }
   }
   return parsed_request;
 }
@@ -121,6 +128,7 @@ Request::result_type Request::consume(char input) {
     case http_version_major_start: {
       if (is_digit(input)) {
         http_version_major_ = http_version_major_ * 10 + input - '0';
+        version_.push_back(input);
         state_ = http_version_major;
         return indeterminate;
       } else {
@@ -129,10 +137,12 @@ Request::result_type Request::consume(char input) {
     }
     case http_version_major: {
       if (input == '.') {
+        version_.push_back(input);
         state_ = http_version_minor_start;
         return indeterminate;
       } else if (is_digit(input)) {
         http_version_major_ = http_version_major_ * 10 + input - '0';
+        version_.push_back(input);
         return indeterminate;
       } else {
         return bad;
@@ -141,7 +151,7 @@ Request::result_type Request::consume(char input) {
     case http_version_minor_start: {
       if (is_digit(input)) {
         http_version_minor_ = http_version_minor_ * 10 + input - '0';
-        version_ = http_version_major_ + "." + http_version_minor_;
+        version_.push_back(input);
         state_ = http_version_minor;
         return indeterminate;
       } else {
@@ -154,7 +164,7 @@ Request::result_type Request::consume(char input) {
         return indeterminate;
       } else if (is_digit(input)) {
         http_version_minor_ = http_version_minor_ * 10 + input - '0';
-        version_ = http_version_major_ + "." + http_version_minor_;
+        version_.push_back(input);
         return indeterminate;
       } else {
         return bad;
@@ -303,4 +313,8 @@ Request::Headers Request::headers() const {
 
 std::string Request::body() const {
   return body_;
+}
+
+Request::result_type Request::parsed_status() const {
+  return parsed_status_;
 }
