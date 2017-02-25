@@ -98,6 +98,9 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       std::string handler_id = config.statements_[i]->tokens_[2];
       NginxConfig* handler_config = config.statements_[i]->child_block_.get();
       RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
+      if(handler == nullptr) {
+        return false;
+      }
       handler->Init(name, *handler_config);
       info->uri_prefix_to_handler[name] = handler;
 
