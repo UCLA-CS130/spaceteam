@@ -88,7 +88,7 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
     } else if (key == "path") {
       if (config.statements_[i]->tokens_.size() != 3
           || !config.statements_[i]->child_block_) {
-        return false;
+        return false; // wrong format
       }
       std::string name = config.statements_[i]->tokens_[1];
       if (std::find(path_names.begin(), path_names.end(), name) != path_names.end()) {
@@ -98,13 +98,16 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       std::string handler_id = config.statements_[i]->tokens_[2];
       NginxConfig* handler_config = config.statements_[i]->child_block_.get();
       RequestHandler* handler = RequestHandler::CreateByName(handler_id.c_str());
+      if(handler == nullptr) {
+        return false; // Handler not found
+      }
       handler->Init(name, *handler_config);
       info->uri_prefix_to_handler[name] = handler;
 
     } else if (key == "default") {
       if (config.statements_[i]->tokens_.size() != 2
           || !config.statements_[i]->child_block_) {
-        return false;
+        return false; // wrong format
       }
       std::string handler_id = config.statements_[i]->tokens_[1];
       // NginxConfig* handler_config = config.statements_[i]->child_block_.get();
