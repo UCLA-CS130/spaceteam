@@ -35,17 +35,17 @@ gcov: clean check
 
 
 %_test: %_test.cc libgtest.a libgmock.a $(OBJECTS)
-	$(CXX) $(GTEST_FLAGS) -isystem include $(OBJECTS) $< $(GTEST_DIR)/src/gtest_main.cc libgtest.a $(BOOST_FLAGS) -o $@
-	
+	$(CXX) $(GMOCK_FLAGS) -isystem include $(OBJECTS) $< $(GMOCK_DIR)/src/gmock_main.cc libgmock.a $(BOOST_FLAGS) -o $@
+
 
 libgtest.a:
 	$(CXX) $(GTEST_FLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
 	ar -rv $@ gtest-all.o
 
 libgmock.a:
-	$(CXX) $(GTEST_FLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
+	$(CXX) $(GMOCK_FLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
 	$(CXX) $(GMOCK_FLAGS) -c $(GMOCK_DIR)/src/gmock-all.cc
-	ar -rv $@ gmock-all.o
+	ar -rv $@ gmock-all.o gtest-all.o
 
 %.o: $.cc
 	$(CXX) $(CXXFLAGS) -c $<

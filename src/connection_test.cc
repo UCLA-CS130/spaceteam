@@ -11,7 +11,7 @@
 
 class MockServerStatus : public ServerStatus {
 
-}
+};
 
 class ConnectionTest : public ::testing::Test {
  protected:

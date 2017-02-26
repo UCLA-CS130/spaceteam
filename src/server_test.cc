@@ -19,17 +19,22 @@ TEST(ServerTest, SimpleServerTest) {
 
 TEST(ServerInfoTest, GetServerInfo) {
 	ServerInfo info;
-	EXPECT_TRUE(Server::getServerInfo("test_config", &info));
+	EXPECT_TRUE(Server::getServerInfo("config_parser/test_config", &info));
 	EXPECT_EQ(info.port, 2020);
-	EXPECT_EQ(info.uri_prefix_to_handler.size(), 3);
+	EXPECT_EQ(info.uri_prefix_to_handler.size(), 4);
 }
 
 TEST(ServerInfoTest, UnexpectedConfig) {
 	ServerInfo info;
-	EXPECT_FALSE(Server::getServerInfo("test_config_bad", &info));
+	EXPECT_FALSE(Server::getServerInfo("config_parser/test_config_bad", &info));
 }
 
-TEST(ServerInfoTest, UnexpectedHandlerConfig) {
+TEST(ServerInfoTest, DuplicatePort) {
 	ServerInfo info;
-	EXPECT_FALSE(Server::getServerInfo("test_config_bad2", &info));
+	EXPECT_FALSE(Server::getServerInfo("config_parser/test_config_bad2", &info));
+}
+
+TEST(ServerInfoTest, DuplicateHandler) {
+	ServerInfo info;
+	EXPECT_FALSE(Server::getServerInfo("config_parser/test_config_bad2", &info));
 }
