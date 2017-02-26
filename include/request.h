@@ -16,8 +16,7 @@ class Request {
 
     static std::unique_ptr<Request> Parse(const std::string& raw_request);
 
-    static std::unique_ptr<Request> Parse(const std::string& raw_request,
-                                            ServerStatus *status);
+    static std::unique_ptr<Request> Parse(const std::string& raw_request, ServerStatus *status);
 
     std::string raw_request() const;
     std::string method() const;
