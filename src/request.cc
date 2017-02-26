@@ -17,7 +17,16 @@ std::unique_ptr<Request> Request::Parse(const std::string& raw_request) {
       break;
     }
   }
+  parsed_request->setServerStatus(nullptr);
+
   return parsed_request;
+}
+
+std::unique_ptr<Request> Request::Parse(const std::string& raw_request,
+                                          ServerStatus *status) {
+  std::unique_ptr<Request> req = Parse(raw_request);
+  req->setServerStatus(status);
+  return req;
 }
 
 // Takes a single character, records it's position,
@@ -305,6 +314,14 @@ std::string Request::uri() const {
 
 std::string Request::version() const {
   return version_;
+}
+
+void Request::setServerStatus(ServerStatus *status) {
+  server_status_ = status;
+}
+
+ServerStatus* Request::getServerStatus() const {
+  return server_status_;
 }
 
 Request::Headers Request::headers() const {

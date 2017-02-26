@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 #include <map>
+#include <vector>
 #include <string>
 
 #include "connection.h"
@@ -13,6 +14,8 @@ struct ServerInfo {
 
   /* Maps url path to its config */
   std::map<std::string, RequestHandler*> uri_prefix_to_handler;
+
+  std::map<std::string, std::vector<std::string>> handler_name_to_prefixes;
 
 };
 
@@ -35,8 +38,11 @@ class Server {
 
   boost::asio::ip::tcp::acceptor acceptor_;
   int port_;
-  /* Maps url path to its handler */
+
   std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
+  ServerStatus server_status_;
+  // Info for ServerStatus
+  std::map<std::string, std::vector<std::string>> handler_name_to_prefixes_;
 };
 
 #endif

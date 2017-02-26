@@ -2,8 +2,6 @@
 # assistance from http://stackoverflow.com/questions/25320928/how-to-capture-the-output-of-curl-to-variable-in-bash
 # in order to capture the curl command
 
-echo_url="http://localhost:2020/echo"
-
 # === Integration Test 1 ===
 # Checking that the server starts and echos a response.
 
@@ -11,7 +9,7 @@ echo_url="http://localhost:2020/echo"
 ./webserver test_config &
 
 # Tests for status code
-output=$(curl -I $echo_url | head -n 1| cut -d $' ' -f2)
+output=$(curl -I http://localhost:2020/echo | head -n 1| cut -d $' ' -f2)
 
 # Checks the "OK" status code from HTTP
 if [ $output -eq "200" ];

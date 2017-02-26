@@ -9,7 +9,7 @@
 //
 // Usage:
 //   Response r;
-//   r.SetStatus(RESPONSE_200);
+//   r.SetStatus(RESPONSE::OK);
 //   r.SetBody(...);
 //   return r.ToString();
 //
@@ -25,6 +25,7 @@ class Response {
   };
   
   void SetStatus(const ResponseCode response_code);
+  ResponseCode GetResponseCode();
   void AddHeader(const std::string& header_name, const std::string& header_value);
   void SetBody(const std::string& body);
   
@@ -32,6 +33,7 @@ class Response {
 
  private:
   std::string status_;
+  ResponseCode raw_status_;
 
   using Headers = std::vector<std::pair<std::string, std::string>>;
   Headers headers_;
