@@ -11,6 +11,7 @@
 #include "request.h"
 #include "response.h"
 #include "request_handler.h"
+#include "server_status.h"
 
 // only need gtest_prod.h when testing
 #ifdef TEST_CONNECTION
@@ -28,7 +29,8 @@ class Connection
   typedef boost::shared_ptr<Connection> pointer;
   static pointer create(boost::asio::io_service& io_service);
   static pointer create(boost::asio::io_service& io_service, 
-                        std::map<std::string, RequestHandler*>* input_path_to_handler);
+                        std::map<std::string, RequestHandler*>* input_path_to_handler,
+                        ServerStatus* status);
   boost::asio::ip::tcp::socket& socket();
   void start();
 
@@ -38,9 +40,11 @@ class Connection
  private:
   Connection(boost::asio::io_service& io_service) : socket_(io_service) {}
   Connection(boost::asio::io_service& io_service, 
-             std::map<std::string, RequestHandler*>* input_path_to_handler)
+             std::map<std::string, RequestHandler*>* input_path_to_handler,
+             ServerStatus *status)
              : socket_(io_service), 
-               path_to_handler_(input_path_to_handler) {}
+               path_to_handler_(input_path_to_handler),
+               server_status_(status) {}
   void do_read();
   bool handle_read(const boost::system::error_code& error, 
                    std::size_t bytes_transferred);
@@ -52,6 +56,8 @@ class Connection
   boost::asio::ip::tcp::socket socket_;
   // Maps given by server.cc to keep track of url paths to info
   std::map<std::string, RequestHandler*>* path_to_handler_;
+
+  ServerStatus *server_status_;
 
   // Allows NotFoundHandler to be used
   const std::string DEFAULT_STRING = "default";

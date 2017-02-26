@@ -5,6 +5,7 @@
 #include "connection.h"
 #include "request_handler.h"
 #include "response.h"
+#include "server_status.h"
 
 using boost::asio::ip::tcp;
 
@@ -17,8 +18,9 @@ Connection::pointer Connection::create(boost::asio::io_service& io_service) {
 }
 
 Connection::pointer Connection::create(boost::asio::io_service& io_service, 
-                                       std::map<std::string, RequestHandler*>* input_path_to_handler) {
-  return pointer(new Connection(io_service, input_path_to_handler));
+                                       std::map<std::string, RequestHandler*>* input_path_to_handler,
+                                       ServerStatus* status) {
+  return pointer(new Connection(io_service, input_path_to_handler, status));
 }
 
 tcp::socket& Connection::socket() {
@@ -49,7 +51,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
   std::copy(buffer_.begin(), buffer_.begin()+bytes_transferred, std::back_inserter(buffer_string));
 
   // RequestParser will insert data into the request struct
-  std::unique_ptr<Request> request = Request::Parse(buffer_string);
+  std::unique_ptr<Request> request = Request::Parse(buffer_string, server_status_);
 
   std::string handler_uri_prefix = request->uri();
   // Holder for the request pointer
@@ -68,18 +70,22 @@ bool Connection::handle_read(const boost::system::error_code& error,
   }
 
   // check if it was done or not
-  if (request_handler == nullptr) {
-    std::cerr << "using Request Handler with prefix " << handler_uri_prefix 
+  if (request_handler != nullptr) {
+    std::cerr << "Using Request Handler with prefix " << handler_uri_prefix 
               << " matching this path: " << request->uri() << std::endl;
-    request_handler = path_to_handler_->at(DEFAULT_STRING);
   } else {
     std::cerr << "Did not find any Request Handlers matching this path: " 
               << request->uri() << std::endl;
+    request_handler = path_to_handler_->at(DEFAULT_STRING);
   }
 
   Response response;
   request_handler->HandleRequest(*request, &response);
   do_write(response);
+
+  // Update server status
+  server_status_->UpdateStatus(request->uri(), response.GetResponseCode());
+
   return true; // success
 }
 

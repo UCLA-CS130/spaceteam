@@ -16,7 +16,11 @@ void Response::SetStatus(const ResponseCode response_code) {
       break;
     }
   }
+
+  raw_status_ = response_code;
 }
+
+Response::ResponseCode Response::GetResponseCode() { return raw_status_; }
   
 void Response::AddHeader(const std::string& header_name, 
                          const std::string& header_value) {

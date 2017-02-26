@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 #include <string>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
@@ -28,6 +29,9 @@ Server::Server(boost::asio::io_service& io_service,
   
   port_ = info.port;
   uri_prefix_to_handler_ = info.uri_prefix_to_handler;
+  handler_name_to_prefixes_ = info.handler_name_to_prefixes;
+
+  server_status_.AddHandlerInfo(handler_name_to_prefixes_);
 
   tcp::endpoint endpoint(tcp::v6(), port_);
   acceptor_.open(endpoint.protocol());
@@ -43,7 +47,8 @@ Server::Server(boost::asio::io_service& io_service,
 void Server::start_accept() {
   Connection::pointer new_connection =
       Connection::create(acceptor_.get_io_service(),
-                         &uri_prefix_to_handler_);
+                         &uri_prefix_to_handler_,
+                         &server_status_);
 
   acceptor_.async_accept(
       new_connection->socket(),
@@ -103,6 +108,7 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       }
       handler->Init(name, *handler_config);
       info->uri_prefix_to_handler[name] = handler;
+      info->handler_name_to_prefixes[handler_id].push_back(name);
 
     } else if (key == "default") {
       if (config.statements_[i]->tokens_.size() != 2
@@ -115,6 +121,7 @@ bool Server::getServerInfo(const char* file_name, ServerInfo* info) {
       std::string path = "default";
       handler->Init(path.c_str(), *config.statements_[i]->child_block_);
       info->uri_prefix_to_handler["default"] = handler;
+      info->handler_name_to_prefixes[handler_id].push_back("default");
 
     } else {
       printf ("Unexpected statment: %s %s;\n",

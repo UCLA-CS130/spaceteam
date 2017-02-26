@@ -5,18 +5,27 @@
 #include <vector>
 #include <memory>
 
+#include "server_status.h"
+
 // Represents an HTTP Request.
 //
 // Usage:
 //   auto request = Request::Parse(raw_request);
 class Request {
   public:
+
     static std::unique_ptr<Request> Parse(const std::string& raw_request);
+
+    static std::unique_ptr<Request> Parse(const std::string& raw_request,
+                                            ServerStatus *status);
 
     std::string raw_request() const;
     std::string method() const;
     std::string uri() const;
     std::string version() const;
+
+    void setServerStatus(ServerStatus *status);
+    ServerStatus *getServerStatus() const;
 
     using Headers = std::vector<std::pair<std::string, std::string>>;
     Headers headers() const;
@@ -37,6 +46,8 @@ class Request {
     std::string version_;
     std::string body_;
     Headers headers_;
+
+    ServerStatus *server_status_;
 
     // added private variables for easier parsing
     std::string handler_path_;

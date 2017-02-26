@@ -3,15 +3,24 @@
 
 #define TEST_CONNECTION
 
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 #include "connection.h"
 #include "echo_handler.h"
+#include "server_status.h"
+
+class MockServerStatus : public ServerStatus {
+
+}
 
 class ConnectionTest : public ::testing::Test {
  protected:
   ConnectionTest() {
     injectTestMaps();
-    connection_ = Connection::create(io_service_, &uri_prefix_to_handler_);
+    MockServerStatus server_status;
+    connection_ = Connection::create(io_service_,
+                                     &uri_prefix_to_handler_,
+                                     &server_status);
   }
   
   // Inject the maps created before connection is initialized.
