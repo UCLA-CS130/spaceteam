@@ -14,5 +14,5 @@ path /status StatusHandler {}
 default NotFoundHandler {}
 
 # Testing handler for multithreading
-# Blocks by holding the connection open
-path /block HoldingHandler {}
+# Holding the connection open
+path /hold HoldingHandler {}
