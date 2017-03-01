@@ -10,6 +10,5 @@ RequestHandler::Status HoldingHandler::HandleRequest(const Request& request,
   std::cout << "Waiting on HoldingHandler" << std::endl;
   // Purposeful infinite loop to keep the connection alive
   while(true) {}
-
   return OK;
 }
