@@ -2,7 +2,7 @@
 
 $CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Werror -isystem include
-BOOST_FLAGS = -lboost_system -lboost_filesystem
+BOOST_FLAGS = -lboost_system -lboost_filesystem -lboost_thread
 GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
 TEST_FLAGS = -std=c++11 -pthread

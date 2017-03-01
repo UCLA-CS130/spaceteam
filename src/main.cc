@@ -15,7 +15,7 @@ int main(int argc, char** argv) {
     std::cerr << "Error parsing config file." << std::endl;
     return 1;
   }
-  io_service.run();
+  server->run();
   delete server;
   return 0;
 }

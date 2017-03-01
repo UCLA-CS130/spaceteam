@@ -29,6 +29,9 @@ class Server {
   // Public for testing
   static bool getServerInfo(const char* file_name, ServerInfo* info);
 
+  // Runs the server on main.cpp
+  void run();
+
  private:
   Server(boost::asio::io_service& io_service,
          const ServerInfo info);
@@ -38,6 +41,8 @@ class Server {
 
   boost::asio::ip::tcp::acceptor acceptor_;
   int port_;
+  // Default is 5 threads, can be specified in config in the future.
+  const std::size_t NUM_OF_THREADS_ = 5;
 
   std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
   ServerStatus server_status_;
