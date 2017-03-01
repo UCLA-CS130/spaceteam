@@ -21,8 +21,8 @@ class Response {
     // Define your HTTP response codes here.
     OK = 200,
     NOT_FOUND = 404,
-    INTERNAL_SERVER_ERROR = 500
-    REDIRECT = 302;
+    INTERNAL_SERVER_ERROR = 500,
+    REDIRECT = 302
   };
   
   void SetStatus(const ResponseCode response_code);
