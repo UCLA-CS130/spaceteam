@@ -21,10 +21,10 @@ fi
 
 # # === Integration Test 2 ===
 # # Checking that the server can return a static file
-output2=$(curl http://localhost:2020/static/test.html | diff example_files/test.html - )
+static_output=$(curl http://localhost:2020/static/test.html | diff example_files/test.html - )
 
 # # Checks that the diff produces no output, since the files should be the same.
-if [ -z $output2 ];
+if [ -z $static_output ];
 	then
 		echo "SUCCESS: SERVED TEST.HTML FILE"
 	else
@@ -33,15 +33,28 @@ fi
 
 # === Integration Test 3 ===
 # Checking that the server can't return a static file, returning 404
-output3=$(curl -I http://localhost:2020/notreal.html | head -n 1 | cut -d $' ' -f2)
+not_found_output=$(curl -I http://localhost:2020/notreal.html | head -n 1 | cut -d $' ' -f2)
 
 # Checks that the diff produces no output, since the files should be the same.
-if [ $output3 -eq "404" ];
+if [ $not_found_output -eq "404" ];
 	then
 		echo "SUCCESS: RETURNED 404 NOT FOUND ERROR"
 	else
 		echo "FAILED: DID NOT RETURN 404 ERROR"
 fi
+
+# === Integration Test 4 ===
+# Checking that the server can handle multiple connections at once using multithreading
+
+# thread_output=$(curl -I http://localhost:2020/hold | curl -I http://localhost:2020/hold | (sleep 20 && kill %1))
+
+# # Checks that the diff produces no output, since the files should be the same.
+# if [[ $thread_output == *"Waiting on HoldingHandler"* && $thread_output == *"200"*]];
+# 	then
+# 		echo "SUCCESS: HANDLED A SECOND CONNECTION SIMULTANEOUSLY"
+# 	else
+# 		echo "FAILED: DID NOT HANDLE A SECOND CONNECTION SIMULTANEOUSLY"
+# fi
 
 #Stop the webserver
 kill %1
