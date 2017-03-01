@@ -9,9 +9,9 @@ RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix,
          const NginxConfig& config) {
 	uri_prefix_ = uri_prefix;
 	RequestHandler::ParseConfig(config);
-	//host = RequestHandler::getHost();
-	//portno = RequestHandler::getPort();
-	//TODO: Implement above function
+	host = ProxyHandler::getHost();
+	portno = ProxyHandler::getPort();
+
 	return OK;
 }
 
@@ -94,4 +94,14 @@ response->SetStatus(Response::INTERNAL_SERVER_ERROR);
 
 return OK;
 
+}
+
+std::string ProxyHandler::getHost() {
+  std::string h = config_map_[CONFIG_HOST_KEY_];
+  return h;
+}
+
+std::string ProxyHandler::getPort() {
+  std::string portnum = config_map_[CONFIG_PORT_KEY_];
+  return portnum;
 }
