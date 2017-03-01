@@ -3,7 +3,7 @@
 $CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Werror -lpthread -isystem include
 BOOST_FLAGS = -lboost_system -lboost_filesystem -lpthread
-GTEST_DIR = googletest/googletestcd
+GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
 TEST_FLAGS = -std=c++11 -lpthread
 GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
@@ -15,8 +15,7 @@ SOURCES = $(CLASSES:=.cc)
 OBJECTS = $(CLASSES:=.o)
 # TODO: make tests of the rest of the .cc files. For now, using ACTUAL_TESTS instead of TESTS
 TESTS = $(CLASSES:=_test.cc)
-ACTUAL_TESTS = config_parser/config_parser_test src/connection_test src/request_test src/server_test
-ACTUAL_TESTS_SOURCE = $(ACTUAL_TESTS:=.cc)
+ACTUAL_TESTS = config_parser/config_parser_test src/connection_test src/request_test src/server_test src/proxy_handler_test
 GCOV = config_parser/config_parser.cc src/connection.cc src/request.cc src/server.cc
 
 all: webserver
@@ -27,6 +26,7 @@ webserver: $(OBJECTS) src/main.cc
 check: webserver $(ACTUAL_TESTS)
 	for test in $^ ; do ./$$test ; done
 	./server_integration_test.sh
+	./request_handler_integration_test.sh
 
 gcov: CXXFLAGS += -fprofile-arcs -ftest-coverage
 gcov: TEST_FLAGS += -fprofile-arcs -ftest-coverage
@@ -52,7 +52,7 @@ libgmock.a:
 
 clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
-	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test
+	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src_proxy_handler_test
 	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
 
 .PHONY: all gcov check clean

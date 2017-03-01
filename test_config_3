@@ -1,6 +1,6 @@
 # This is a comment.
 
-port 2020;  # This is also a comment.
+port 2040;  # This is also a comment.
 
 path /static StaticHandler {
   root ./example_files;
@@ -14,6 +14,6 @@ path /status StatusHandler {}
 default NotFoundHandler {}
 
 path / ProxyHandler{
-	host www.ucla.edu;
-	portno 80;
+	host localhost;
+	portno 2030;
 }

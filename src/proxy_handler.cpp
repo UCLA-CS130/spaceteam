@@ -32,7 +32,7 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
   }
 boost::asio::io_service io_service_;
 tcp::resolver resolver(io_service_);
-tcp::resolver::query query(host, "http");
+tcp::resolver::query query(host, portno);
 tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
 tcp::socket socket(io_service_);
