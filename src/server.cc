@@ -63,11 +63,12 @@ void Server::start_accept() {
 void Server::run() {
   // Modeled after team AAAAA from class, which was shown in class code reviews
   
-  // List of unique pointers to each thread
+  // List of shared pointers to each thread
+  // Boost library does not support unique pointers for threads
   std::vector<boost::shared_ptr<boost::thread>> list_of_threads;
   for (std::size_t i = 0; i < NUM_OF_THREADS_; i++) {
     boost::shared_ptr<boost::thread> thread(new boost::thread(
-      boost::bind(&boost::asio::io_service::run, &acceptor_.get_io_service())));
+        boost::bind(&boost::asio::io_service::run, &acceptor_.get_io_service())));
     list_of_threads.push_back(thread);
   }
 
