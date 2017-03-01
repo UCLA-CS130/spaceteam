@@ -21,6 +21,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
 
   // get relative path by taking the request URI, removing the StaticHandler's
   // URI prefix, and prepending the root path
+  std::cout << "GOT URI:" + request.uri() << std::endl;
   std::string uri = request.uri();
   std::string relative_path_string;
   if (uri != uri_prefix_ 
@@ -38,6 +39,8 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
     boost::filesystem::path absolute_path = boost::filesystem::canonical(
         relative_path);
 
+    std::cout << "RELATIVE PATH" << std::endl;
+
     // get name of base directory
     std::string dir = boost::filesystem::canonical(
         boost::filesystem::path(root_)).filename().string();
@@ -46,6 +49,9 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
     if (absolute_path.string().find(dir) != std::string::npos) {
       boost::filesystem::ifstream ifs(absolute_path, 
                                       std::ios::in | std::ios::binary);
+
+      std::cout << "ABSOLUTE PATH" << std::endl;
+
       if (ifs) {
         // read file into response body
         std::ostringstream oss;
@@ -56,6 +62,8 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
         // set mime type
         std::string extension = absolute_path.extension().string();
         response->AddHeader(CONTENT_TYPE_, GetMimeType(extension));
+
+        std::cout << "GOT IT" << std::endl;
 
         response->SetStatus(Response::OK);
         return OK;
