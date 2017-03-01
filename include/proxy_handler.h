@@ -16,7 +16,8 @@ public:
 private:
 	std::string uri_prefix_;
 	//This should not be hardcoded once we implement the appropriate config parsing
-	std::string host="www.google.com";
+	std::string host="www.ucla.edu";
+	std::string portno="80";
 };
 
 REGISTER_REQUEST_HANDLER(ProxyHandler);

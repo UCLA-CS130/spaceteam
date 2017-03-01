@@ -10,6 +10,7 @@ RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix,
 	uri_prefix_ = uri_prefix;
 	RequestHandler::ParseConfig(config);
 	//host = RequestHandler::getHost();
+	//portno = RequestHandler::getPort();
 	//TODO: Implement above function
 	return OK;
 }
@@ -40,7 +41,7 @@ boost::asio::connect(socket, endpoint_iterator);
 boost::asio::streambuf req;
 std::ostream request_stream(&req);
 request_stream << "GET "<< relative_path_string<< " HTTP/1.1\r\n";
-request_stream << "Host: "<< host << "\r\n";
+request_stream << "Host: "<< host<<":"<<portno<< "\r\n";
 request_stream<<"Accept: */*\r\n";
 request_stream<<"Connection: close \r\n\r\n";
 
@@ -56,7 +57,10 @@ boost::asio::read_until(socket, resp, "\r\n");
     response_stream >> status_code;
     std::string status_message;
     std::getline(response_stream, status_message);
-if(status_code==200)
+
+if(status_code==302)
+response->SetStatus(Response::REDIRECT);
+else if(status_code==200)
 response->SetStatus(Response::OK);
 else if (status_code==404)
 response->SetStatus(Response::NOT_FOUND);
@@ -78,10 +82,9 @@ response->SetStatus(Response::INTERNAL_SERVER_ERROR);
       std::string responsecontent="";
     boost::system::error_code error;
     while (boost::asio::read(socket, resp,
-          boost::asio::transfer_at_least(1), error))
+          boost::asio::transfer_all(), error))
       {
       	      
- 		
       }
       const char* header=boost::asio::buffer_cast<const char*>(resp.data());                  
    			responsecontent += (std::string)header;
