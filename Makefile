@@ -2,7 +2,7 @@
 
 $CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Werror -isystem include
-BOOST_FLAGS = -lboost_system -lboost_filesystem
+BOOST_FLAGS = -lboost_system -lboost_filesystem -lboost_thread
 GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
 TEST_FLAGS = -std=c++11 -pthread
@@ -10,7 +10,7 @@ GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
 GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
 CLASSES = config_parser/config_parser src/server src/connection src/request src/response src/server_status \
-					src/request_handler src/echo_handler src/static_handler src/not_found_handler src/status_handler
+					src/request_handler src/echo_handler src/static_handler src/not_found_handler src/status_handler src/holding_handler
 SOURCES = $(CLASSES:=.cc)
 OBJECTS = $(CLASSES:=.o)
 # TODO: make tests of the rest of the .cc files. For now, using ACTUAL_TESTS instead of TESTS

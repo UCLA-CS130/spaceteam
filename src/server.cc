@@ -4,6 +4,7 @@
 #include <string>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include <algorithm>
 
 #include "config_parser.h"
@@ -20,7 +21,6 @@ Server *Server::makeServer(boost::asio::io_service& io_service,
   }
 
   return new Server(io_service, info);
-
 }
 
 Server::Server(boost::asio::io_service& io_service,
@@ -57,6 +57,25 @@ void Server::start_accept() {
           this,
           new_connection,
           boost::asio::placeholders::error));
+}
+
+// Run the server in threads
+void Server::run() {
+  // Modeled after team AAAAA from class, which was shown in class code reviews
+  
+  // List of shared pointers to each thread
+  // Boost library does not support unique pointers for threads
+  std::vector<boost::shared_ptr<boost::thread>> list_of_threads;
+  for (std::size_t i = 0; i < NUM_OF_THREADS_; i++) {
+    boost::shared_ptr<boost::thread> thread(new boost::thread(
+        boost::bind(&boost::asio::io_service::run, &acceptor_.get_io_service())));
+    list_of_threads.push_back(thread);
+  }
+
+  // Wait for threads to exit before finishing
+  for (std::size_t i = 0; i < list_of_threads.size(); i++) {
+    list_of_threads[i]->join();
+  }
 }
 
 bool Server::handle_accept(Connection::pointer new_connection,

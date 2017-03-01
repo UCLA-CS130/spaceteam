@@ -12,3 +12,7 @@ path /status StatusHandler {}
 
 # Default response handler if no handlers match.
 default NotFoundHandler {}
+
+# Testing handler for multithreading
+# Holding the connection open
+path /hold HoldingHandler {}
