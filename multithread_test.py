@@ -1,3 +1,5 @@
+# Help from : https://pymotw.com/2/threading/, https://www.tutorialspoint.com/python/python_networking.htm, https://github.com/UCLA-CS130/AAAAA/blob/master/test/integration_multithread_test.py
+
 from os import system
 from threading import Thread
 import socket
