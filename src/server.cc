@@ -63,7 +63,7 @@ void Server::start_accept() {
 void Server::run() {
   // Modeled after team AAAAA from class, which was shown in class code reviews
   
-  // List of unique pointers to each thread
+  // List of pointers to each thread
   std::vector<boost::shared_ptr<boost::thread>> list_of_threads;
   for (std::size_t i = 0; i < NUM_OF_THREADS_; i++) {
     boost::shared_ptr<boost::thread> thread(new boost::thread(
