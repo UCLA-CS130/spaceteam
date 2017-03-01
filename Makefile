@@ -27,6 +27,7 @@ webserver: $(OBJECTS) src/main.cc
 check: webserver $(ACTUAL_TESTS)
 	for test in $^ ; do ./$$test ; done
 	./server_integration_test.sh
+	python multithread_test.py
 
 gcov: CXXFLAGS += -fprofile-arcs -ftest-coverage
 gcov: TEST_FLAGS += -fprofile-arcs -ftest-coverage
