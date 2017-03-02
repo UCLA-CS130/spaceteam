@@ -17,78 +17,71 @@ RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix,
 
 RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
 		Response* response) {
-	if(response==nullptr)
-		return ERROR;
+    //This function is inspired by www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/example/http/client/sync_client.cpp
+    std::string uri;
+    if (request.uri() == uri_prefix_)
+    uri = "/" ;
+    else
+    uri = request.uri();
 
-	std::string uri = request.uri();
-  	std::string relative_path_string;
-  	if (uri != uri_prefix_ 
-      && uri.size() > uri_prefix_.size() 
-      && uri.substr(0, uri_prefix_.size()) == uri_prefix_
-      && uri_prefix_.compare("/")!=0) {
-    relative_path_string = uri.substr(uri_prefix_.size());
-  } else {
-    relative_path_string = uri;
-  }
-boost::asio::io_service io_service_;
-tcp::resolver resolver(io_service_);
-tcp::resolver::query query(host, portno);
-tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+    if (uri != uri_prefix_ 
+        && uri.size() > uri_prefix_.size() 
+        && uri.substr(0, uri_prefix_.size()) == uri_prefix_) {
+      uri=  uri.substr(uri_prefix_.size());
+    } 
+  
+	  boost::asio::io_service io_service;
+    tcp::resolver resolver(io_service);
+    tcp::resolver::query query(host, portno);
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
+    tcp::socket socket(io_service);
+    boost::asio::connect(socket, endpoint_iterator);
+    
+    std::string req = "GET " + uri + " HTTP/1.1\r\n";
+    req = req + "Host: " + host + "\r\n";
+    req = req + "Accept: */*\r\n";
+    req= req + "Connection: close\r\n\r\n";
+    boost::asio::write(socket, boost::asio::buffer(req, req.size()));
 
-tcp::socket socket(io_service_);
-boost::asio::connect(socket, endpoint_iterator);
-
-boost::asio::streambuf req;
-std::ostream request_stream(&req);
-request_stream << "GET "<< relative_path_string<< " HTTP/1.1\r\n";
-request_stream << "Host: "<< host<<":"<<portno<< "\r\n";
-request_stream<<"Accept: */*\r\n";
-request_stream<<"Connection: close \r\n\r\n";
-
-boost::asio::write(socket, req);
-
-boost::asio::streambuf resp;
-boost::asio::read_until(socket, resp, "\r\n");
-
-	std::istream response_stream(&resp);
+    boost::asio::streambuf resp;
+    boost::asio::read_until(socket, resp, "\r\n");
+    std::istream response_stream(&resp);
     std::string http_version;
     response_stream >> http_version;
     unsigned int status_code;
     response_stream >> status_code;
     std::string status_message;
     std::getline(response_stream, status_message);
-
-if(status_code==302)
-response->SetStatus(Response::REDIRECT);
-else if(status_code==200)
-response->SetStatus(Response::OK);
-else if (status_code==404)
-response->SetStatus(Response::NOT_FOUND);
-else 
-response->SetStatus(Response::INTERNAL_SERVER_ERROR);
-    // Read the response headers, which are terminated by a blank line.
+    if(status_code==200)
+      response->SetStatus(Response::OK);
+    else if(status_code==302)
+      response->SetStatus(Response::REDIRECT);
+    else
+      response->SetStatus(Response::NOT_FOUND);
+    if (!response_stream || http_version.substr(0, 5) != "HTTP/") {
+        response->SetStatus(Response::INTERNAL_SERVER_ERROR);
+        return ERROR;
+    }
+    
     boost::asio::read_until(socket, resp, "\r\n\r\n");
-
-    // Process the response headers.
     std::string currheader;
-    while (std::getline(response_stream, currheader) && currheader != "\r")
-      {
-      	std::string name =currheader.substr(0,currheader.length()-(currheader.length()-currheader.find(':')));
-      	std::string value =currheader.substr(currheader.find(':')+2);
-      	response->AddHeader(name,value);
-      }
-
-       // Read until EOF, writing data to output as we go.
-      std::string responsecontent="";
+    while (std::getline(response_stream, currheader) && currheader != "\r") {
+        int pos = currheader.find(":");
+        std::string name = currheader.substr(0, pos);
+        std::string value = currheader.substr(pos + 2);
+        response->AddHeader(name, value);
+    }
+    
     boost::system::error_code error;
-    while (boost::asio::read(socket, resp,
-          boost::asio::transfer_all(), error))
-      {
-      	      
-      }
-      const char* header=boost::asio::buffer_cast<const char*>(resp.data());                  
-   			responsecontent += (std::string)header;
-    response->SetBody(responsecontent);
+    while (boost::asio::read(socket, resp, error)) {
+        std::ostringstream temp;
+        temp << &resp;
+        response->SetBody(temp.str());
+        if (error == boost::asio::error::eof) {
+            break;
+        }
+    }
+    
     if (error != boost::asio::error::eof)
       throw boost::system::system_error(error);
 
