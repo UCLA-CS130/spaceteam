@@ -46,6 +46,7 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
     if (absolute_path.string().find(dir) != std::string::npos) {
       boost::filesystem::ifstream ifs(absolute_path, 
                                       std::ios::in | std::ios::binary);
+
       if (ifs) {
         // read file into response body
         std::ostringstream oss;
