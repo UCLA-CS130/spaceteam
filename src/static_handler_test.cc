@@ -13,8 +13,9 @@ class MockNginxConfig : public NginxConfig {};
 class StaticHandlerTest : public ::testing::Test {
  protected:
   StaticHandlerTest() {
+    const std::string uri_prefix = "/static";
     ParseString("root ./example_files;");
-    status_ = static_handler.Init(uri_prefix_, config_);
+    status_ = static_handler_.Init(uri_prefix, config_);
     request_ = MockRequest::Parse(TEST_BUFFER);
   }
 
@@ -26,7 +27,7 @@ class StaticHandlerTest : public ::testing::Test {
   MockNginxConfig config_;
 
   StaticHandler static_handler_;
-  const std::string uri_prefix_ = "/static";
+  
   const std::string TEST_BUFFER = "GET /static/test.html HTTP/1.1\r\nUser-Agent: curl/7.35.0\r\nHost: localhost:2020\r\nAccept: */*\r\n\r\n";
   std::string EXPECTED_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n<title>Server Test</title>\r\n</head>\r\n<body>\r\n<h1>Testing testing 1 2 3...</h1>\r\n<p>Looks like the server is working!</p>\r\n</body>\r\n</html>";
   RequestHandler::Status status_;
