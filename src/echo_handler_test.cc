@@ -10,13 +10,13 @@
 class EchoHandlerTest : public ::testing::Test {
  protected:
   EchoHandlerTest() {
-    status_ = echo_handler_.Init(uri_prefix_, config_);
+    std::string uri_prefix;  
+    NginxConfig config; 
+    status_ = echo_handler_.Init(uri_prefix, config);    
     request_ = Request::Parse(TEST_BUFFER);
   }
 
   EchoHandler echo_handler_;
-  const std::string uri_prefix_;
-  const NginxConfig config_;
   const std::string TEST_BUFFER = "GET /echo HTTP/1.1\r\nAccept-Language: en-us\r\n\r\nname=1";
   const std::string EXPECTED_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nGET /echo HTTP/1.1\r\nAccept-Language: en-us\r\n\r\nname=1";
   RequestHandler::Status status_;
