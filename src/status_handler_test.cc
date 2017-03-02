@@ -5,7 +5,6 @@
 #include "config_parser.h"
 #include "status_handler.h"
 
-class MockRequest : public Request {};
 class MockResponse : public Response {};
 class MockServerStatus : public ServerStatus {};
 
@@ -16,15 +15,15 @@ class StatusHandlerTest : public ::testing::Test {
     const NginxConfig config;
     status_ = status_handler_.Init(uri_prefix, config);
     server_status_.UpdateStatus("/echo", MockResponse::OK);
-    status_request_ = MockRequest::Parse(STATUS_BUFFER);
+    status_request_ = Request::Parse(STATUS_BUFFER);
     status_request_->setServerStatus(&server_status_);
   }
 
   StatusHandler status_handler_;
   const std::string STATUS_BUFFER = "GET /status HTTP/1.1\r\nAccept-Language: en-us\r\n\r\nname=1";
   const std::string EXPECTED_STATUS_RESPONSE = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<!doctype html><html><body><h1>Server Status</h1><h3>Handler Info</h3></br><h2>Total Requests: 1</h2><h5>Number of requests for \"/echo\"</h5><ul style=\"list-style-type:none\"><li>200: 1</li></ul></body></html>";
-  MockRequestHandler::Status status_;
-  std::unique_ptr<MockRequest> status_request_;
+  RequestHandler::Status status_;
+  std::unique_ptr<Request> status_request_;
   MockResponse status_response_;
   MockServerStatus server_status_;
 };
