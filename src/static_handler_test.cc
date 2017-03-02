@@ -1,5 +1,3 @@
-#define TEST_STATIC_HANDLER
-
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 #include "request.h"
