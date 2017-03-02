@@ -10,8 +10,8 @@
 class EchoHandlerTest : public ::testing::Test {
  protected:
   EchoHandlerTest() {
-    status = echo_handler.Init(uri_prefix_, config_);
-    request = Request::Parse(TEST_BUFFER);
+    status_ = echo_handler.Init(uri_prefix_, config_);
+    request_ = Request::Parse(TEST_BUFFER);
   }
 
   EchoHandler echo_handler_;
