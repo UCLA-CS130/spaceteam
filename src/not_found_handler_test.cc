@@ -10,18 +10,18 @@
 class NotFoundHandlerTest : public ::testing::Test {
  protected:
   NotFoundHandlerTest() {
-    status = not_found_handler.Init(uri_prefix, config);
+    status = not_found_handler_.Init(uri_prefix_, config_);
   }
 
-  NotFoundHandler not_found_handler;
-  const std::string uri_prefix;
-  const NginxConfig config;
+  NotFoundHandler not_found_handler_;
+  const std::string uri_prefix_;
+  const NginxConfig config_;
   const std::string EXPECTED_RESPONSE = "HTTP/1.1 404 Not Found\r\nContent-Type: text/html\r\n\r\n<!doctype html><html><body><h1>404 Not Found</h1></body></html>";
-  RequestHandler::Status status;
+  RequestHandler::Status status_;
 };
 
 TEST_F(NotFoundHandlerTest, InitTest) {
-  EXPECT_EQ(status, RequestHandler::Status::OK);
+  EXPECT_EQ(status_, RequestHandler::Status::OK);
 }
 
 TEST_F(NotFoundHandlerTest, HandleProperRequestTest) {
