@@ -15,16 +15,8 @@ public:
                        Response* response);
 private:
 	std::string uri_prefix_;
-	//This should not be hardcoded once we implement the appropriate config parsing
-	//std::string host="www.ucla.edu";
-	//std::string portno="80";
-
-	std::string host;
-	std::string portno;
-
-	std::string getHost();
-	std::string getPort();
-
+	std::string host_;
+	std::string portno_;
 	const std::string CONFIG_HOST_KEY_ = "host";
 	const std::string CONFIG_PORT_KEY_ = "portno";
 };

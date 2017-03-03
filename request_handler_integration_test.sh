@@ -12,15 +12,23 @@ echo "Make a request directly to backend"
 curl -D backheaders.txt http://localhost:2030/ > headresponse.txt
 
 if cmp -s proxresponse.txt headresponse.txt ; then
+	rm proxheaders.txt
+	rm proxresponse.txt
+	rm backheaders.txt
+	rm headresponse.txt
+
+	kill %1
+	kill %2
 	echo "INTEGRATION TEST PASSED"
+	exit 0
 else
+	rm proxheaders.txt
+	rm proxresponse.txt
+	rm backheaders.txt
+	rm headresponse.txt
+
+	kill %1
+	kill %2
 	echo "INTEGRATION TEST FAILED"
+	exit 1
 fi
-
-rm proxheaders.txt
-rm proxresponse.txt
-rm backheaders.txt
-rm headresponse.txt
-
-kill %1
-kill %2
