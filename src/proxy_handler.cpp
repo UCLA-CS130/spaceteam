@@ -18,6 +18,7 @@ RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix,
 RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
 		Response* response) {
     //This function is inspired by www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/example/http/client/sync_client.cpp
+    while (true) {
     std::string uri;
     if (request.uri() == uri_prefix_) {
     uri = "/" ;
@@ -31,9 +32,9 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
     } 
   
     //Setting up connection to remote host,port
-	  boost::asio::io_service io_service;
+	boost::asio::io_service io_service;
     tcp::resolver resolver(io_service);
-    tcp::resolver::query query(host_, portno_);
+    tcp::resolver::query query(host_, "http");
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
     tcp::socket socket(io_service);
     boost::asio::connect(socket, endpoint_iterator);
@@ -59,9 +60,6 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
     if(status_code==200) {
       response->SetStatus(Response::OK);
     }
-    else if(status_code==302) {
-      response->SetStatus(Response::REDIRECT);
-    }
     else {
       response->SetStatus(Response::NOT_FOUND);
     }
@@ -73,11 +71,18 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
     //pasrsing response headers
     boost::asio::read_until(socket, resp, "\r\n\r\n");
     std::string currheader;
+    int reset=0;
     while (std::getline(response_stream, currheader) && currheader != "\r") {
         int pos = currheader.find(":");
         std::string name = currheader.substr(0, pos);
         std::string value = currheader.substr(pos + 2);
         response->AddHeader(name, value);
+        if(status_code==302 && name.compare("Location")==0) {
+            host_ = value;
+            host_ = host_.substr(host_.find(":") +3);
+            host_ = host_.substr(0, host_.length() - 2);
+            std::cerr<<"Setting location to:"<<host_<<std::endl;
+        }
     }
     
     //parsing response content
@@ -94,6 +99,13 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
     if (error != boost::asio::error::eof) {
       throw boost::system::system_error(error);
     }
+
+    if(status_code!=302)
+    {
+        break;
+    }
+
+}
 
 return OK;
 
