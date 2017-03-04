@@ -13,7 +13,7 @@ path /status StatusHandler {}
 # Default response handler if no handlers match.
 default NotFoundHandler {}
 
-path /proxy ProxyHandler{
+path / ProxyHandler{
 	host www.ucla.edu;
 	portno 80;
 }

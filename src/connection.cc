@@ -59,10 +59,10 @@ bool Connection::handle_read(const boost::system::error_code& error,
     
     // if referer field exists, set the part after http://localhost:port as uri
     for (auto pair : request->headers()) {
-        if (pair.first == "Referer") {
-            auto ref_uri = pair.second.find("/",8);
-            handler_uri_prefix = pair.second.substr(ref_uri);
-            }
+      if (pair.first == "Referer") {
+        auto ref_uri = pair.second.find("/",8);
+        handler_uri_prefix = pair.second.substr(ref_uri);
+      }
     }
    
   // Iterate through handler_id possibilities by longest prefix.

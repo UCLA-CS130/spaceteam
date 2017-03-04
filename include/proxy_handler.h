@@ -9,10 +9,8 @@
 
 class ProxyHandler : public RequestHandler {
 public:
- 	Status Init(const std::string& uri_prefix,
-              const NginxConfig& config);
-  	Status HandleRequest(const Request& request,
-                       Response* response);
+	Status Init(const std::string& uri_prefix, const NginxConfig& config);
+	Status HandleRequest(const Request& request, gResponse* response);
 private:
 	std::string uri_prefix_;
 	std::string host_;

@@ -15,19 +15,19 @@ RequestHandler::Status ProxyHandler::Init(const std::string& uri_prefix,
 	return OK;
 }
 
-RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
-		Response* response) {
+RequestHandler::Status ProxyHandler::HandleRequest(const Request& request, Response* response) {
     //This function is inspired by www.boost.org/doc/libs/1_49_0/doc/html/boost_asio/example/http/client/sync_client.cpp
     while (true) {
     std::string uri;
     if (request.uri() == uri_prefix_) {
-    uri = "/" ;
+      uri = "/" ;
     } else {
-    uri = request.uri();
+      uri = request.uri();
     }
+    
     if (uri != uri_prefix_ 
-        && uri.size() > uri_prefix_.size() 
-        && uri.substr(0, uri_prefix_.size()) == uri_prefix_) {
+      && uri.size() > uri_prefix_.size() 
+      && uri.substr(0, uri_prefix_.size()) == uri_prefix_) {
       uri=  uri.substr(uri_prefix_.size());
     } 
   
@@ -64,8 +64,8 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
       response->SetStatus(Response::NOT_FOUND);
     }
     if (!response_stream || http_version.substr(0, 5) != "HTTP/") {
-        response->SetStatus(Response::INTERNAL_SERVER_ERROR);
-        return ERROR;
+      response->SetStatus(Response::INTERNAL_SERVER_ERROR);
+      return ERROR;
     }
     
     //pasrsing response headers
@@ -73,27 +73,27 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request,
     std::string currheader;
     int reset=0;
     while (std::getline(response_stream, currheader) && currheader != "\r") {
-        int pos = currheader.find(":");
-        std::string name = currheader.substr(0, pos);
-        std::string value = currheader.substr(pos + 2);
-        response->AddHeader(name, value);
-        if(status_code==302 && name.compare("Location")==0) {
-            host_ = value;
-            host_ = host_.substr(host_.find(":") +3);
-            host_ = host_.substr(0, host_.length() - 2);
-            std::cerr<<"Setting location to:"<<host_<<std::endl;
-        }
+      int pos = currheader.find(":");
+      std::string name = currheader.substr(0, pos);
+      std::string value = currheader.substr(pos + 2);
+      response->AddHeader(name, value);
+      if(status_code==302 && name.compare("Location")==0) {
+        host_ = value;
+        host_ = host_.substr(host_.find(":") +3);
+        host_ = host_.substr(0, host_.length() - 2);
+        std::cerr<<"Setting location to:"<<host_<<std::endl;
+      }
     }
     
     //parsing response content
     boost::system::error_code error;
     while (boost::asio::read(socket, resp, error)) {
-        std::ostringstream temp;
-        temp << &resp;
-        response->SetBody(temp.str());
-        if (error == boost::asio::error::eof) {
-            break;
-        }
+      std::ostringstream temp;
+      temp << &resp;
+      response->SetBody(temp.str());
+      if (error == boost::asio::error::eof) {
+        break;
+      }
     }
     
     if (error != boost::asio::error::eof) {
