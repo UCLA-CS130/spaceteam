@@ -26,7 +26,12 @@ webserver: $(OBJECTS) src/main.cc
 check: webserver $(ACTUAL_TESTS)
 	for test in $^ ; do ./$$test ; done
 	./server_integration_test.sh
-	./request_handler_integration_test.sh
+
+reverse_proxy_integration_test:
+	./reverse_proxy_integration_test.sh
+
+reverse_proxy_302_test:
+	./reverse_proxy_302_test.sh
 
 gcov: CXXFLAGS += -fprofile-arcs -ftest-coverage
 gcov: TEST_FLAGS += -fprofile-arcs -ftest-coverage

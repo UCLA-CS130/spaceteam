@@ -1,0 +1,19 @@
+# This is a comment.
+
+port 2020;  # This is also a comment.
+
+path /static StaticHandler {
+  root ./example_files;
+}
+
+path /echo EchoHandler {}
+
+path /status StatusHandler {}
+
+# Default response handler if no handlers match.
+default NotFoundHandler {}
+
+path /proxy ProxyHandler{
+	host ucla.edu;
+	portno 80;
+}
