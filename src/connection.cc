@@ -64,7 +64,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
         handler_uri_prefix = pair.second.substr(ref_uri);
       }
     }
-   
+  
   // Iterate through handler_id possibilities by longest prefix.
   while (handler_uri_prefix != "") {
     // Check the map to see if it holds handler_id.
