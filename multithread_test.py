@@ -62,6 +62,26 @@ def two_connections_test():
 	system("pkill webserver")
 	return static_error
 
+def multiple_connections_test(numOfThreads):
+
+	print "Starting static request thread"
+	
+	while(numOfThreads > 1):
+		hold = Thread(target = hold_connect, args=())
+		hold.start()
+		time.sleep(3)	
+		numOfThreads = numOfThreads - 1
+
+	static_error = 0
+	static = Thread(target = connect, args=(STATIC_REQUEST, EXPECTED_STATIC_RESPONSE, static_error))
+	static.start()
+	static.join()
+
+	# Kill the webserver process since the /hold connection is an infinite loop
+	print "Closing webserver connection."
+	system("pkill webserver")
+	return static_error
+
 def start_server():
 	print "Starting server..."
 	p = subprocess.Popen("./webserver test_config", shell=True)
@@ -71,10 +91,16 @@ if __name__ == "__main__":
 	start_server()
 	time.sleep(2)
 
-	two_connections_results = two_connections_test()
+	if (len(sys.argv) == 1):
+		results = two_connections_test()	
+	else:
+		if (len(sys.argv) == 2):
+			wow = int(sys.argv[1])
+			results = multiple_connections_test(wow)
+
 	time.sleep(2)
 
-	if (two_connections_results == 0):
+	if (results == 0):
 		print "THREAD SUCCESS"
 		exit(0)
 	else:
