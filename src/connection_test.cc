@@ -7,7 +7,11 @@
 #include "gtest/gtest.h"
 #include "connection.h"
 #include "echo_handler.h"
+#include "not_found_handler.h"
+#include "request.h"
 #include "server_status.h"
+
+class MockRequest : public Request {};
 
 class MockServerStatus : public ServerStatus {
 
@@ -25,12 +29,14 @@ class ConnectionTest : public ::testing::Test {
   
   // Inject the maps created before connection is initialized.
   void injectTestMaps() {
-    uri_prefix_to_handler_["/echo"] =  &echo_handler;
+    uri_prefix_to_handler_["/echo"] =  &echo_handler_;
+    uri_prefix_to_handler_["default"] = &not_found_handler_;
   }
 
   boost::asio::io_service io_service_;
   std::map<std::string, RequestHandler*> uri_prefix_to_handler_;
-  EchoHandler echo_handler;
+  EchoHandler echo_handler_;
+  NotFoundHandler not_found_handler_;
   Connection::pointer connection_;
 };
 
