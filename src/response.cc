@@ -10,6 +10,10 @@ void Response::SetStatus(const ResponseCode response_code) {
       status_ = "HTTP/1.1 404 Not Found";
       break;
     }
+    case REDIRECT: {
+      status_ = "HTTP/1.1 302 Found";
+      break;
+    }
     case INTERNAL_SERVER_ERROR:
     default: {
       status_ = "HTTP/1.1 500 Internal Server Error";

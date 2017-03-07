@@ -1,7 +1,7 @@
 # spaceteam Makefile
 
 $CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Werror -isystem include
+CXXFLAGS = -std=c++11 -Wall -Werror -pthread -isystem include
 BOOST_FLAGS = -lboost_system -lboost_filesystem -lboost_thread
 GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
@@ -10,12 +10,13 @@ GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
 GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
 CLASSES = config_parser/config_parser src/server src/connection src/request src/response src/server_status \
-					src/request_handler src/echo_handler src/static_handler src/not_found_handler src/status_handler src/holding_handler
+					src/request_handler src/echo_handler src/proxy_handler src/static_handler src/not_found_handler src/status_handler src/holding_handler
+
 SOURCES = $(CLASSES:=.cc)
 OBJECTS = $(CLASSES:=.o)
 # TODO: make tests of the rest of the .cc files. For now, using ACTUAL_TESTS instead of TESTS
 TESTS = $(CLASSES:=_test.cc)
-ACTUAL_TESTS = config_parser/config_parser_test src/connection_test src/request_test src/server_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test
+ACTUAL_TESTS = config_parser/config_parser_test src/connection_test src/request_test src/server_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
 ACTUAL_TESTS_SOURCE = $(ACTUAL_TESTS:=.cc)
 GCOV = config_parser/config_parser.cc src/connection.cc src/request.cc src/server.cc
 
@@ -28,6 +29,12 @@ check: webserver $(ACTUAL_TESTS)
 	for test in $^ ; do ./$$test ; done
 	./server_integration_test.sh
 	python multithread_test.py
+
+reverse_proxy_integration_test:
+	./reverse_proxy_integration_test.sh
+
+reverse_proxy_302_test:
+	./reverse_proxy_302_test.sh
 
 gcov: CXXFLAGS += -fprofile-arcs -ftest-coverage
 gcov: TEST_FLAGS += -fprofile-arcs -ftest-coverage
@@ -53,7 +60,7 @@ libgmock.a:
 
 clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
-	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test
+	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
 	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
 
 .PHONY: all gcov check clean

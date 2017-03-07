@@ -57,6 +57,14 @@ bool Connection::handle_read(const boost::system::error_code& error,
   // Holder for the request pointer
   RequestHandler* request_handler = nullptr;
     
+    // if referer field exists, set the part after http://localhost:port as uri
+    for (auto pair : request->headers()) {
+      if (pair.first == "Referer") {
+        auto ref_uri = pair.second.find("/",8);
+        handler_uri_prefix = pair.second.substr(ref_uri);
+      }
+    }
+  
   // Iterate through handler_id possibilities by longest prefix.
   while (handler_uri_prefix != "") {
     // Check the map to see if it holds handler_id.
@@ -68,7 +76,7 @@ bool Connection::handle_read(const boost::system::error_code& error,
       handler_uri_prefix = ShortenUriPrefix(handler_uri_prefix);
     }
   }
-
+  
   // check if it was done or not
   if (request_handler != nullptr) {
     std::cerr << "Using Request Handler with prefix " << handler_uri_prefix 

@@ -1,6 +1,6 @@
 # This is a comment.
 
-port 2020;  # This is also a comment.
+port 2040;  # This is also a comment.
 
 path /static StaticHandler {
   root ./example_files;
@@ -13,11 +13,7 @@ path /status StatusHandler {}
 # Default response handler if no handlers match.
 default NotFoundHandler {}
 
-path / ProxyHandler {
-	host www.ucla.edu;
-	portno 80;
+path / ProxyHandler{
+	host localhost;
+	portno 2030;
 }
-
-# Testing handler for multithreading
-# Holding the connection open
-path /hold HoldingHandler {}
