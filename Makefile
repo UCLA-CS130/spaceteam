@@ -1,11 +1,11 @@
 # spaceteam Makefile
 
 $CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Werror -lpthread -isystem include
+CXXFLAGS = -std=c++11 -Wall -Werror -pthread -isystem include
 BOOST_FLAGS = -lboost_system -lboost_filesystem -lboost_thread
 GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
-TEST_FLAGS = -std=c++11 -lpthread
+TEST_FLAGS = -std=c++11 -pthread
 GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
 GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
