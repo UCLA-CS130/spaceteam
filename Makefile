@@ -2,7 +2,7 @@
 
 $CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Werror -pthread -isystem include
-BOOST_FLAGS = -lboost_system -lboost_filesystem -lboost_thread
+BOOST_FLAGS = -static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_thread -lboost_system -lboost_filesystem 
 GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
 TEST_FLAGS = -std=c++11 -pthread
@@ -62,5 +62,9 @@ clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
 	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
 	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
+
+docker_image:
+	docker build -t webserver.build .
+	docker run webserver.build > webserver_binary.tar
 
 .PHONY: all gcov check clean
