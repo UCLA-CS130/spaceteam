@@ -1,6 +1,7 @@
 *.o
 webserver
 *.tar
+*.tar.gz
 *_test
 *.a
 *.out

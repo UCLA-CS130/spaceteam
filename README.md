@@ -8,6 +8,10 @@ A C++ web server
 
 ## Run Server
 
+`$ make run`
+
+## Deploy to AWS
+
 `$ make deploy`
 
 ## Build and Run Tests

@@ -60,11 +60,11 @@ build: Dockerfile
 	docker build -t webserver.build .
 	docker run --rm webserver.build > webserver.tar
 
-deploy: Dockerfile.run webserver.tar
+run: Dockerfile.run webserver.tar
 	# Copy binary, config, and test files to the /deploy directory
 	rm -rf deploy
 	mkdir deploy
-	tar -xf webserver.tar
+	tar xf webserver.tar
 	chmod 0755 webserver
 	cp webserver deploy
 	cp Dockerfile.run deploy
@@ -76,10 +76,26 @@ deploy: Dockerfile.run webserver.tar
 	docker run --rm -t -p 2020:2020 webserver.deploy
 	# created with help from team Mr.-Robot-et-al.'s Makefile
 
+deploy: Dockerfile.run webserver.tar
+	# Copy binary, config, and test files to the /deploy directory
+	rm -rf deploy
+	mkdir deploy
+	tar xf webserver.tar
+	chmod 0755 webserver
+	mv webserver deploy
+	cp Dockerfile.run deploy
+	cp test_config deploy
+	cp -r example_files deploy
+	tar czf deploy.tar.gz deploy
+	# Deploy to AWS EC2 instance
+	scp -i spaceteam.pem deploy.tar.gz ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com:~
+	ssh -i spaceteam.pem ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com 'tar xzf deploy.tar.gz; cd deploy; docker kill $$(docker ps -q); docker build -f Dockerfile.run -t webserver.deploy .; docker run --rm -t -p 80:2020 webserver.deploy'
+	# created with help from team Mr.-Robot-et-al.'s Makefile
+
 clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
 	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
 	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
-	$(RM) -rf webserver.tar deploy/*
+	$(RM) -rf webserver.tar deploy
 
 .PHONY: all gcov check clean
