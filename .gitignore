@@ -1,5 +1,6 @@
 *.o
 webserver
+*.tar
 *_test
 *.a
 *.out
@@ -7,3 +8,8 @@ webserver
 *.gcda
 *.gcno
 *.gcov
+*.pem
+Vagrantfile
+.vagrant
+deploy/*
+

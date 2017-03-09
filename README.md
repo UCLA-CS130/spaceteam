@@ -4,11 +4,11 @@ A C++ web server
 
 ## Build Server
 
-`$ make`
+`$ make build`
 
 ## Run Server
 
-`$ ./webserver <config>`
+`$ make deploy`
 
 ## Build and Run Tests
 
