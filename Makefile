@@ -60,22 +60,6 @@ build: Dockerfile
 	docker build -t webserver.build .
 	docker run --rm webserver.build > webserver.tar
 
-run: Dockerfile.run webserver.tar
-	# Copy binary, config, and test files to the /deploy directory
-	rm -rf deploy
-	mkdir deploy
-	tar xf webserver.tar
-	chmod 0755 webserver
-	cp webserver deploy
-	cp Dockerfile.run deploy
-	cp test_config deploy
-	cp -r example_files deploy
-	# build and run
-	cd deploy; \
-	docker build -f Dockerfile.run -t webserver.deploy .; \
-	docker run --rm -t -p 2020:2020 webserver.deploy
-	# created with help from team Mr.-Robot-et-al.'s Makefile
-
 deploy: Dockerfile.run webserver.tar
 	# Copy binary, config, and test files to the /deploy directory
 	rm -rf deploy
@@ -86,11 +70,11 @@ deploy: Dockerfile.run webserver.tar
 	cp Dockerfile.run deploy
 	cp test_config deploy
 	cp -r example_files deploy
-	tar czf deploy.tar.gz deploy
 	# Deploy to AWS EC2 instance
-	scp -i spaceteam.pem deploy.tar.gz ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com:~
-	ssh -i spaceteam.pem ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com 'tar xzf deploy.tar.gz; cd deploy; docker kill $$(docker ps -q); docker build -f Dockerfile.run -t webserver.deploy .; docker run --rm -t -p 80:2020 webserver.deploy'
-	# created with help from team Mr.-Robot-et-al.'s Makefile
+	cd deploy; \
+	docker build -f Dockerfile.run -t webserver.deploy .; \
+	docker save webserver.deploy | bzip2 | ssh -i ../spaceteam.pem ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com 'bunzip2 | docker load; docker kill $$(docker ps -q); docker run --rm -t -p 80:2020 webserver.deploy; exit;'
+	# created with help from team Mr.-Robot-et-al.'s Makefile and http://stackoverflow.com/questions/23935141/how-to-copy-docker-images-from-one-host-to-another-without-via-repository
 
 clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver

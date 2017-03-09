@@ -8,11 +8,7 @@ A C++ web server
 
 ## Run Server
 
-`$ make run`
-
-## Deploy to AWS
-
-`$ make deploy`
+`$ ./webserver <config>`
 
 ## Build and Run Tests
 
