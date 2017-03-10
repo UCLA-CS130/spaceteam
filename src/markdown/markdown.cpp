@@ -1,4 +1,4 @@
-
+// cpp-markdown library from https://github.com/sevenjay/cpp-markdown
 /*
 	Copyright (c) 2009 by Chad Nelson
 	Released under the MIT License.
