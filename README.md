@@ -4,7 +4,7 @@ A C++ web server
 
 ## Build Server
 
-`$ make`
+`$ make build`
 
 ## Run Server
 

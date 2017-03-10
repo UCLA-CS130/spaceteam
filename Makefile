@@ -42,10 +42,8 @@ gcov: TEST_FLAGS += -fprofile-arcs -ftest-coverage
 gcov: clean check
 	for test in $(GCOV) ; do gcov -r ./$$test ; done
 
-
 %_test: %_test.cc libgtest.a libgmock.a $(OBJECTS)
 	$(CXX) $(GMOCK_FLAGS) -isystem include $(OBJECTS) $< $(GMOCK_DIR)/src/gmock_main.cc libgmock.a $(BOOST_FLAGS) -o $@
-
 
 libgtest.a:
 	$(CXX) $(GTEST_FLAGS) -c $(GTEST_DIR)/src/gtest-all.cc
@@ -59,13 +57,30 @@ libgmock.a:
 %.o: $.cc
 	$(CXX) $(CXXFLAGS) -c $<
 
+build: Dockerfile
+	docker build -t webserver.build .
+	docker run --rm webserver.build > webserver.tar
+
+deploy: Dockerfile.run webserver.tar
+	# Copy binary, config, and test files to the /deploy directory
+	rm -rf deploy
+	mkdir deploy
+	tar xf webserver.tar
+	chmod 0755 webserver
+	mv webserver deploy
+	cp Dockerfile.run deploy
+	cp test_config deploy
+	cp -r example_files deploy
+	# Deploy to AWS EC2 instance
+	cd deploy; \
+	docker build -f Dockerfile.run -t webserver.deploy .; \
+	docker save webserver.deploy | bzip2 | ssh -i ../spaceteam.pem ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com 'bunzip2 | docker load; docker kill $$(docker ps -q); docker run --rm -t -p 80:2020 webserver.deploy; exit;'
+	# created with help from team Mr.-Robot-et-al.'s Makefile and http://stackoverflow.com/questions/23935141/how-to-copy-docker-images-from-one-host-to-another-without-via-repository
+
 clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
 	$(RM) src/*.o src/markdown/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
 	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
-
-docker_image:
-	docker build -t webserver.build .
-	docker run webserver.build > webserver_binary.tar
+	$(RM) -rf webserver.tar deploy
 
 .PHONY: all gcov check clean

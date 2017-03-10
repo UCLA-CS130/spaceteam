@@ -33,7 +33,7 @@ RequestHandler::Status ProxyHandler::HandleRequest(const Request& request, Respo
     // Setting up connection to remote host,port
     boost::asio::io_service io_service;
     tcp::resolver resolver(io_service);
-    tcp::resolver::query query(host_, "http");
+    tcp::resolver::query query(host_, "80");
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
     tcp::socket socket(io_service);
     boost::asio::connect(socket, endpoint_iterator);
