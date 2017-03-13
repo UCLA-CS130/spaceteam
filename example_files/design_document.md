@@ -36,6 +36,6 @@ Request handler that serves text files directly from an AWS S3 bucket.
 * This is our [direct link to same file on S3](https://s3-us-west-1.amazonaws.com/cs130-spaceteam/test.html) for comparison. 
 
 ### Exact Walkthrough for the instructors to follow along
-1. Check out the [direct link on S3](https://s3-us-west-1.amazonaws.com/cs130-spaceteam/test.html) for the original file.
+1. Check out the [direct link on S3](https://s3-us-west-1.amazonaws.com/cs130-spaceteam/test.html) for the cloud-hosted original file.
 2. Check out [our server's hosted version](/s3/test.html) of the S3 file.
 
