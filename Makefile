@@ -2,7 +2,7 @@
 
 $CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Werror -pthread -isystem include
-BOOST_FLAGS = -static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_thread -lboost_system -lboost_filesystem 
+BOOST_FLAGS = -static-libgcc -static-libstdc++ -Wl,-Bstatic -lboost_thread -lboost_system -lboost_filesystem -lboost_regex
 GTEST_DIR = googletest/googletest
 GMOCK_DIR = googletest/googlemock
 TEST_FLAGS = -std=c++11 -pthread
@@ -10,7 +10,8 @@ GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
 GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
 CLASSES = config_parser/config_parser src/server src/connection src/request src/response src/server_status \
-	src/request_handler src/echo_handler src/proxy_handler src/static_handler src/not_found_handler src/status_handler src/holding_handler src/s3_handler
+					src/request_handler src/echo_handler src/proxy_handler src/static_handler src/not_found_handler \
+					src/status_handler src/holding_handler src/markdown/markdown src/markdown/markdown-tokens src/s3_handler
 
 SOURCES = $(CLASSES:=.cc)
 OBJECTS = $(CLASSES:=.o)
@@ -75,12 +76,12 @@ deploy: Dockerfile.run webserver.tar
 	# Deploy to AWS EC2 instance
 	cd deploy; \
 	docker build -f Dockerfile.run -t webserver.deploy .; \
-	docker save webserver.deploy | bzip2 | ssh -i ../spaceteam.pem ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com 'bunzip2 | docker load; docker kill $$(docker ps -q); docker run --rm -t -p 80:2020 webserver.deploy; exit;'
+	docker save webserver.deploy | bzip2 | ssh -i ../spaceteam.pem ec2-user@ec2-54-202-188-68.us-west-2.compute.amazonaws.com 'bunzip2 | docker load; docker kill $$(docker ps -q); docker run --rm -t -p 80:8003 webserver.deploy; exit;'
 	# created with help from team Mr.-Robot-et-al.'s Makefile and http://stackoverflow.com/questions/23935141/how-to-copy-docker-images-from-one-host-to-another-without-via-repository
 
 clean:
 	$(RM) *.o *~ *.a *.gcov *.gcda *.gcno webserver
-	$(RM) src/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
+	$(RM) src/*.o src/markdown/*.o src/*~ src/*.gcda src/*.gcno src/server_test src/request_test src/connection_test src/not_found_handler_test src/echo_handler_test src/static_handler_test src/status_handler_test src/proxy_handler_test
 	$(RM) config_parser/*.o config_parser/*~ config_parser/*.gcda config_parser/*.gcno config_parser/config_parser_test
 	$(RM) -rf webserver.tar deploy
 
