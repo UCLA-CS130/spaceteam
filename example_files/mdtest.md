@@ -1,6 +1,14 @@
-# Project Title
+# Testing our Markdown Functionality!
+# H1
+## H2
+### H3
+#### H4
+##### H5
+###### H6
 
-One Paragraph of project description goes here
+* This means it worked. Hooray.
+
+[I'm an inline-style link](https://www.google.com)
 
 ## Getting Started
 
@@ -8,4 +16,4 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+1. What things you need to install the software and how to install them
