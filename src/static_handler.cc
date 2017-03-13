@@ -3,6 +3,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include "not_found_handler.h"
 #include "static_handler.h"
+#include "markdown/markdown.h"
 
 RequestHandler::Status StaticHandler::Init(const std::string& uri_prefix,
                                            const NginxConfig& config) {
@@ -47,17 +48,31 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
       boost::filesystem::ifstream ifs(absolute_path, 
                                       std::ios::in | std::ios::binary);
 
-      if (ifs) {
-        // read file into response body
+      if (ifs) {      
         std::ostringstream oss;
-        oss << ifs.rdbuf();
+        std::string extension = absolute_path.extension().string();
+
+        // If it is a markdown file, process it first. Else, place file into body.
+        if (extension == ".md") {
+          markdown::Document doc;
+          bool results = doc.read(ifs); 
+          // Fails to read
+          if (!results) {
+            return ERROR;
+          }
+          doc.write(oss);
+          // Set the MimeType to HTML, since originally it was .md
+          extension = ".html";
+        } else {
+          // read file into response body
+          oss << ifs.rdbuf();
+        }
+
         ifs.close();
         response->SetBody(oss.str());
 
         // set mime type
-        std::string extension = absolute_path.extension().string();
         response->AddHeader(CONTENT_TYPE_, GetMimeType(extension));
-
         response->SetStatus(Response::OK);
         return OK;
       }
@@ -69,6 +84,8 @@ RequestHandler::Status StaticHandler::HandleRequest(const Request& request,
   
   return OK;
 }
+
+
 
 std::string StaticHandler::GetMimeType(std::string extension) {
   std::unordered_map<std::string, std::string> mime_map;
