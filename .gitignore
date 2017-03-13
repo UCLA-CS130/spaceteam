@@ -13,4 +13,5 @@ webserver
 Vagrantfile
 .vagrant
 deploy/*
+.DS_Store
 
