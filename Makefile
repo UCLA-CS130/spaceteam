@@ -70,6 +70,8 @@ deploy: Dockerfile.run webserver.tar
 	cp Dockerfile.run deploy
 	cp test_config deploy
 	cp -r example_files deploy
+	cp get-s3-object.js deploy
+	cp aws_config.json deploy
 	# Deploy to AWS EC2 instance
 	cd deploy; \
 	docker build -f Dockerfile.run -t webserver.deploy .; \
