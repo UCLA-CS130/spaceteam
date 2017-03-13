@@ -6,7 +6,7 @@
 ##### H5
 ###### H6
 
-* This means it worked. Hooray.
+This means it worked. Hooray.
 
 [I'm an inline-style link](https://www.google.com)
 
