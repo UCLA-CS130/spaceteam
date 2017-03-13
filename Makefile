@@ -10,7 +10,7 @@ GTEST_FLAGS = $(TEST_FLAGS) -isystem $(GTEST_DIR)/include -I$(GTEST_DIR)
 GMOCK_FLAGS = $(GTEST_FLAGS) -isystem $(GMOCK_DIR)/include -I$(GMOCK_DIR)
 
 CLASSES = config_parser/config_parser src/server src/connection src/request src/response src/server_status \
-					src/request_handler src/echo_handler src/proxy_handler src/static_handler src/not_found_handler src/status_handler src/holding_handler
+	src/request_handler src/echo_handler src/proxy_handler src/static_handler src/not_found_handler src/status_handler src/holding_handler src/s3_handler
 
 SOURCES = $(CLASSES:=.cc)
 OBJECTS = $(CLASSES:=.o)

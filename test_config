@@ -21,3 +21,7 @@ path / ProxyHandler {
 # Testing handler for multithreading
 # Holding the connection open
 path /hold HoldingHandler {}
+
+path /s3 S3Handler {
+	bucket cs130-spaceteam;
+}
