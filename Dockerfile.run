@@ -3,5 +3,5 @@ FROM busybox:ubuntu-14.04
 WORKDIR /opt/webserver
 COPY . /opt/webserver
 
-EXPOSE 2020:2020
+EXPOSE 8003:8003
 CMD ["./webserver", "test_config"]
