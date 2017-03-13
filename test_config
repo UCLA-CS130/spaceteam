@@ -1,6 +1,6 @@
 # This is a comment.
 
-port 2020;  # This is also a comment.
+port 8003;  # This is also a comment.
 
 path /static StaticHandler {
   root ./example_files;
