@@ -13,11 +13,11 @@ When accessing a file with .md extension, the static request handler transparent
 
 ### URL for demoing this feature:
 * This current document is in Markdown format!
-* This is the [original md file](https://github.com/UCLA-CS130/spaceteam/blob/master/example_files/mdtest.md) in Github.
+* This is the [original md file](https://raw.githubusercontent.com/UCLA-CS130/spaceteam/master/example_files/mdtest.md) in Github.
 * This is our [test Markdown file](/static/mdtest.md) in our server that converts the MD file into html.
 
 ### Exact Walkthrough for the instructors to follow along
-1. Go to [THIS LINK](https://github.com/UCLA-CS130/spaceteam/blob/master/example_files/mdtest.md) to see the original md file in our example_files folder, hosted by our server.
+1. Go to [THIS LINK](https://raw.githubusercontent.com/UCLA-CS130/spaceteam/master/example_files/mdtest.md) to see the original md text file in our example_files folder, hosted by our server.
 2. Select [THIS LINK](/static/mdtest.md) to see the resulting processed HTML file.
 
 ---
