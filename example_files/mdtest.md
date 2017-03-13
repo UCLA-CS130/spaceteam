@@ -1,6 +1,6 @@
-# Project Title
+# Testing our Markdown Functionality!
 
-One Paragraph of project description goes here
+* This means it worked. Hooray.
 
 ## Getting Started
 
@@ -8,4 +8,4 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+1. What things you need to install the software and how to install them
